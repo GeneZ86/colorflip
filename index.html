@@ -1,0 +1,1732 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Color-Flip</title>
+
+<!-- Home-Bildschirm: Vollbild, eigenes Symbol, dunkle Statusleiste -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Color-Flip">
+<meta name="theme-color" content="#121212">
+
+<!-- Das Symbol steckt direkt in der Seite: kein zweiter Abruf, keine Pfadfrage,
+     sofort auch offline vorhanden. Die Datei daneben bleibt als Rückfalloption. -->
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADgElEQVR4nO3d0albRxhG0Ti4gusO0kP6LyA9uAO7Bj8cCMZkK7qS5p/heq0CdL6HzUhIoPn09vb2B/yXP3cP4FziIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIH3e+/jvX7+te/G3v76se/F/ffvn+7oX//L3zj/I+LTr/zmWZvGLRZUszeIXWyrZEMdkFj97YSKTWfxsOJHpzxy7ynjho3eVMf/o0Tg2lvGqARvLmB8wF8f2Mi7PzNhexmVsxlAch5RxeWzMIWVcZsZMxHFUGZf3TjqqjMvAJF+CkZbHceCxcbl/2IHHxmX1MCcHaW0cxx4bl3vmHXtsXJbOc3KQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEFaG8fMfwg/7J55e/9D+H8tnefkIImDtDyOY99Z7h927DvL6mFODtJEHAceHu+ddODhMTBp6OQ4qo/HxhzVx8yYubeVQ/p4ZsYhfYzNGP3Msb2P5wds72NywPQH0o19vOrRG/sYfrRrvB7nGq+1XAB42296ASDn8yUYSRwkcZDEQRIHSRwkcZDEQRIHSRykz3sf/wF+mPgAPw+Vbb+tfICfND/AD8u3bYhj102tL0xk1325w4lMf+bYeIfvqx698Sbl4UePxrH9dufnB2y/Y3tywFwc28u4PDNjexmXsRlDcRxSxuWxMYeUcZkZMxHHUWVc3jvpqDIuA5N8CUZaHseBx8bl/mEHHhuX1cOcHKS1cRx7bFzumXfssXFZOs/JQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHaW0c26/ove2eedsvSr5t6TwnB0kcpOVxHPvOcv+wY99ZVg9zcpAm4jjw8HjvpAMPj4FJQyfHUX08NuaoPmbGzL2tHNLHMzMO6WNsxuhnju19PD9gex+TA6Y/kG7s41WP3tjH8KNd4/U413it5QLA237TCwA5ny/BSOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SD8As8bntCl2Iw8AAAAASUVORK5CYII=">
+<link rel="apple-touch-icon-precomposed" sizes="180x180" href="./icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="manifest" href="./manifest.webmanifest">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&display=swap">
+
+<style>
+  html { color-scheme: dark; }
+  body { margin: 0; font-family: system-ui, sans-serif; font-size: 14px; overscroll-behavior: none; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<style>
+  /* Color-Flip — deliberately single-theme dark arcade */
+  :root {
+    --bg:          #121212;
+    --surface:     #191920;
+    --hairline:    rgba(255,255,255,.09);
+    --text:        #eceef3;
+    --muted:       #797f8d;
+    --cyan:        #00f0ff;
+    --yellow:      #ffdd00;
+    --radius:      14px;
+    --tile-radius: clamp(12px, 3.4vw, 18px);
+    --font-display: "Chakra Petch", "SF Pro Display", system-ui, sans-serif;
+    --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --ambient: rgba(0,240,255,.10);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  .glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 46%, var(--ambient) 0%, transparent 62%);
+    transition: background 900ms ease;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 460px;
+    padding: clamp(18px, 5vw, 40px) clamp(16px, 5vw, 20px) 40px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 3.6vw, 24px);
+  }
+
+  /* ---------- Header ---------- */
+  header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(18px, 5.2vw, 24px);
+    letter-spacing: .04em;
+    margin: 0;
+    line-height: 1;
+  }
+  .wordmark .c { color: var(--cyan); }
+  .wordmark .y { color: var(--yellow); }
+  .wordmark .dot { color: var(--muted); padding: 0 .12em; }
+
+  .header-actions { display: flex; gap: 5px; }
+
+  .pill {
+    background: transparent;
+    border: 1px solid var(--hairline);
+    color: var(--muted);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 6px 9px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  .pill:hover { color: var(--text); border-color: rgba(255,255,255,.24); }
+  .pill:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .pill[aria-pressed="true"] { color: var(--text); border-color: rgba(255,255,255,.22); }
+
+  /* ---------- Stats ---------- */
+  .stats {
+    display: grid;
+    /* Level und Bonus brauchen kaum Platz, der Highscore am meisten. */
+    grid-template-columns: 0.5fr 0.8fr 0.7fr 1fr 1.2fr;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .stat { padding: 11px 3px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .stat + .stat { border-left: 1px solid var(--hairline); padding-left: 9px; }
+  .stat__label {
+    font-size: clamp(8.5px, 2.1vw, 9.5px);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stat__value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(15px, 4.6vw, 23px);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat--best .stat__value { color: var(--yellow); }
+  button.stat__value {
+    background: none;
+    border: 0;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    transition: opacity .2s ease;
+  }
+  button.stat__value:hover { opacity: .75; }
+  button.stat__value:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .stat--best .stat__value.is-arming { color: var(--muted); font-size: clamp(13px, 3.6vw, 16px); }
+  .stat--now .stat__value { color: var(--cyan); }
+  .stat--now .stat__value.is-void { color: var(--yellow); }
+  .stat--bonus .stat__value { color: var(--muted); transition: color .25s ease; }
+  .stat--bonus .stat__value.is-live { color: var(--yellow); }
+
+  /* ---------- Lives + level progress ---------- */
+  /*
+   * Zwei feste Spalten statt umbrechendem Flex: Die Zeile bleibt in jeder
+   * Sprache und bei jeder Schriftbreite einzeilig; wird es eng, kürzt die
+   * Beschriftung, statt umzubrechen.
+   */
+  .meta-row {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, auto) minmax(0, auto);
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: -4px;
+  }
+  .meter { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .meter--mid { justify-self: center; }
+  .meter--right { justify-self: end; }
+  /* Die Beschriftungen sind auf die breiteste Sprachfassung festgelegt. Rechts
+     ausgerichtet liegt der reservierte Rest links davon — der Text steht damit
+     direkt an seinen Punkten, in jeder Sprache. */
+  .meter--mid .meter__label,
+  .meter--right .meter__label { text-align: right; }
+  .meter__value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--cyan);
+    font-variant-numeric: tabular-nums;
+    min-width: 1ch;
+  }
+  /* Im harten Modus steht dort ein Fragezeichen — sichtbar, aber zurückhaltend. */
+  .meter__value.is-veiled { color: var(--muted); }
+  .meter__label {
+    font-size: 9px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Auf Telefonbreite rücken Schrift, Punkte und Abstände zusammen, damit alle
+     drei Beschriftungen in die Zeile passen. */
+  @media (max-width: 430px) {
+    .meta-row { gap: 6px; }
+    .meter { gap: 5px; }
+    .meter__label { font-size: 8.5px; letter-spacing: .03em; }
+  }
+  /* Reicht die Breite trotzdem nicht (siehe fitRows): erst enger, dann ohne
+     Beschriftung — die Punktreihen tragen sich notfalls selbst. */
+  .meta-row.is-tight .meter { gap: 4px; }
+  .meta-row.is-tight .meter__label { font-size: 8.5px; letter-spacing: 0; }
+  .meta-row.is-tight .meter__value { font-size: 13px; }
+  .meta-row.is-bare .meter--mid .meter__label,
+  .meta-row.is-bare .meter--right .meter__label { display: none; }
+
+  .pips { display: flex; gap: 4px; }
+  .pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.07);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.09);
+    /*
+     * Alle Punkte sind gleich gross — ob voll oder leer, sagt die Farbe. Frueher
+     * schrumpften die leeren auf 80 %, wodurch ihre Luecken groesser wirkten und
+     * die drei Reihen unterschiedlich dicht aussahen.
+     */
+    transition: background 320ms ease, box-shadow 320ms ease;
+  }
+  .pip.on {
+    background: linear-gradient(158deg, #7cf9ff 0%, var(--cyan) 55%, #00b7c4 100%);
+    box-shadow: 0 0 12px rgba(0,240,255,.5), inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .pips--progress .pip.on {
+    background: linear-gradient(158deg, #fff394 0%, var(--yellow) 55%, #d7a800 100%);
+    box-shadow: 0 0 12px rgba(255,221,0,.42), inset 0 1px 0 rgba(255,255,255,.55);
+  }
+  .pips--progress.is-max .pip { background: rgba(255,221,0,.18); box-shadow: inset 0 0 0 1px rgba(255,221,0,.18); }
+  /* Hinweise: weiss-neutral, damit sie weder mit Fortschritt noch Leben verwechselt werden. */
+  .pips--hints .pip.on {
+    background: linear-gradient(158deg, #ffffff 0%, #cfd6e4 55%, #8e97aa 100%);
+    box-shadow: 0 0 10px rgba(207,214,228,.28), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .pips--hints.is-empty .pip { background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+  .pips.is-last .pip.on { animation: softPulse 1.3s ease-in-out infinite; }
+  /* Drei Punktreihen in einer Zeile — auf Telefonbreite rücken sie zusammen. */
+  @media (max-width: 430px) {
+    .pips { gap: 3px; }
+    .pip { width: 9px; height: 9px; border-radius: 3px; }
+  }
+  .meta-row.is-tight .pips { gap: 2px; }
+  .meta-row.is-tight .pip { width: 8px; height: 8px; border-radius: 3px; }
+  @keyframes softPulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+
+  /*
+   * Alle Sprachfassungen liegen übereinander in derselben Rasterzelle: Die
+   * Höhe richtet sich nach der längsten, die inaktiven sind nur unsichtbar.
+   * Dadurch verschiebt ein Sprachwechsel bei keiner Breite das Layout.
+   */
+  .hint {
+    display: grid;
+    border-top: 1px solid var(--hairline);
+    padding-top: clamp(14px, 3vw, 18px);
+  }
+  .hint__text {
+    grid-area: 1 / 1;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .hint__text.is-off { visibility: hidden; }
+  .hint__text b { color: var(--text); font-weight: 600; }
+  .hint__text h3 {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin: 18px 0 5px;
+  }
+  .hint__text h3:first-child { margin-top: 0; }
+  .hint__text p { margin: 0; }
+  .hint__text ul { margin: 0; padding-left: 17px; }
+  .hint__text li { margin: 4px 0; }
+  .hint__text li::marker { color: rgba(255,255,255,.22); }
+  .hint__text .easy { color: var(--cyan); font-weight: 600; }
+  .hint__text .hard { color: var(--yellow); font-weight: 600; }
+  /* Eingeklappt ist der Regeltext ganz weg — er nimmt keinen Platz mit. */
+  .hint[hidden] { display: none; }
+  .pill[aria-expanded="true"] { color: var(--text); border-color: rgba(255,255,255,.22); }
+
+  /* ---------- Board ---------- */
+  .board-wrap { position: relative; }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(8px, 2.6vw, 14px);
+    aspect-ratio: 1 / 1;
+    width: 100%;
+  }
+
+  .tile {
+    all: unset;
+    display: block;
+    position: relative;
+    perspective: 700px;
+    cursor: pointer;
+    border-radius: var(--tile-radius);
+    touch-action: manipulation;
+    transition: transform 120ms ease;
+  }
+  .tile:not(:disabled):active { transform: scale(.93); }
+  .tile:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  .tile:disabled { cursor: default; }
+
+  .tile__inner {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 460ms cubic-bezier(.2,.85,.3,1);
+    will-change: transform;
+  }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--tile-radius);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .face--cyan {
+    background: linear-gradient(158deg, #7cf9ff 0%, var(--cyan) 46%, #00b7c4 100%);
+    box-shadow: 0 0 22px rgba(0,240,255,.38), 0 6px 18px rgba(0,0,0,.45),
+                inset 0 1px 0 rgba(255,255,255,.55);
+  }
+  .face--yellow {
+    background: linear-gradient(158deg, #fff394 0%, var(--yellow) 46%, #d7a800 100%);
+    box-shadow: 0 0 22px rgba(255,221,0,.32), 0 6px 18px rgba(0,0,0,.45),
+                inset 0 1px 0 rgba(255,255,255,.6);
+    transform: rotateY(180deg);
+  }
+
+  /* Solution markers */
+  .tile::after {
+    content: "";
+    position: absolute;
+    inset: 30%;
+    border-radius: 50%;
+    border: 2px solid rgba(8,8,10,.75);
+    opacity: 0;
+    transform: scale(.5);
+    transition: opacity 200ms ease, transform 220ms cubic-bezier(.2,.9,.3,1);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .tile.is-hint::after {
+    opacity: 1;
+    transform: scale(1);
+    animation: hintPulse 1.9s ease-in-out infinite;
+  }
+  @keyframes hintPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(8,8,10,.16); }
+    50%      { box-shadow: 0 0 0 10px rgba(8,8,10,0); }
+  }
+
+  /* Solange eine Karte liegt, das farbige Leuchten dämpfen — es strahlt sonst
+     unter der Karte hervor. */
+  .board-wrap.is-covered .face {
+    box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.4);
+    transition: box-shadow 200ms ease;
+  }
+
+  .board.is-clear .tile__inner { animation: pop 620ms cubic-bezier(.2,.9,.3,1); }
+  @keyframes pop {
+    0%   { scale: 1; }
+    35%  { scale: 1.07; }
+    100% { scale: 1; }
+  }
+
+  /* ---------- Overlay cards ---------- */
+  .card {
+    position: absolute;
+    /* Etwas über das Feld hinaus, sonst blitzen die abgerundeten Ecken
+       der Eckkacheln neben der Karte hervor. */
+    inset: calc(-1 * clamp(8px, 2.4vw, 14px));
+    display: grid;
+    place-content: center;
+    gap: 6px;
+    text-align: center;
+    background: rgba(10,10,12,.82);
+    backdrop-filter: blur(3px);
+    border-radius: calc(var(--tile-radius) + 10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 240ms ease, visibility 240ms;
+    padding: 0 12px;
+  }
+  .card.show { opacity: 1; visibility: visible; }
+  .card__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(24px, 7.6vw, 34px);
+    letter-spacing: .05em;
+    margin: 0;
+    color: var(--cyan);
+  }
+  .card__title.is-perfect { color: var(--yellow); text-shadow: 0 0 26px rgba(255,221,0,.35); }
+  .card__title.is-lost { color: var(--text); font-size: clamp(20px, 6.4vw, 28px); }
+  .card__title.is-over { color: var(--yellow); }
+  .card__points {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--yellow);
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+  }
+  .card__points.is-void {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .card__bonus {
+    font-family: var(--font-display);
+    font-size: 13px;
+    color: var(--cyan);
+    margin: -2px 0 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .card__bonus:empty { display: none; }
+  .card__meta { font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin: 0; }
+  .card__btn { margin-top: 14px; justify-self: center; }
+
+  /* ---------- Controls ---------- */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    min-height: 54px;
+  }
+  /* Feste Spalten: Der Schalter bleibt rechts, auch wenn der Knopf in der
+     Mitte verschwindet — sonst rutscht er in dessen Spalte. */
+  .controls > .moves  { grid-column: 1; }
+  .controls > .btn--hint { grid-column: 2; }
+  .controls > .switch { grid-column: 3; justify-self: end; }
+
+  .moves { display: flex; align-items: baseline; gap: 4px 7px; min-width: 0; }
+  .moves__value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Das Optimum steht neben der Zugzahl, aber leiser — es ist eine Vorgabe,
+     keine Leistung. */
+  .moves__opt { color: var(--cyan); font-size: 17px; margin-left: 3px; }
+  .moves__opt.is-veiled { color: var(--muted); }
+  .moves__label { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+
+  .btn {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 9px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  .btn:hover:not(:disabled) { color: var(--text); border-color: rgba(255,255,255,.24); background: var(--surface); }
+  .btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .btn--hint { justify-self: center; }
+  /* Im harten Modus gibt es keinen Hinweis-Knopf. */
+  .btn.is-gone { display: none; }
+  .btn:disabled { opacity: .3; cursor: default; }
+
+  /*
+   * Schwierigkeit als Schalter: eine Bahn, ein gleitender Knauf. Er laesst
+   * sich nur vor dem ersten Zug eines Spiels bewegen — danach liegt die
+   * Bahn gedaempft da und zeigt nur noch an, was gewaehlt wurde.
+   */
+  .switch {
+    position: relative;
+    display: flex;
+    padding: 3px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    background: rgba(255,255,255,.03);
+  }
+  .switch__thumb {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    border-radius: 999px;
+    background: rgba(0,240,255,.14);
+    box-shadow: inset 0 0 0 1px rgba(0,240,255,.4);
+    transition: transform 260ms cubic-bezier(.2,.9,.3,1), background 260ms ease, box-shadow 260ms ease;
+  }
+  .switch.is-hard .switch__thumb {
+    transform: translateX(100%);
+    background: rgba(255,221,0,.14);
+    box-shadow: inset 0 0 0 1px rgba(255,221,0,.42);
+  }
+  .switch__opt {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    padding: 7px 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .2s;
+  }
+  .switch__opt:hover:not(:disabled) { color: var(--text); }
+  .switch__opt:focus-visible { outline: 2px solid #fff; outline-offset: -2px; border-radius: 999px; }
+  #modeEasy[aria-pressed="true"] { color: var(--cyan); }
+  #modeHard[aria-pressed="true"] { color: var(--yellow); }
+  .switch.is-locked { opacity: .45; }
+  .switch__opt:disabled { cursor: default; }
+
+  /* ---------- Fussleiste ---------- */
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .version {
+    font-size: 10px;
+    letter-spacing: .14em;
+    color: var(--muted);
+    opacity: .55;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Auf Telefonbreite wird alles kompakter, statt umzubrechen. */
+  @media (max-width: 430px) {
+    .controls { gap: 8px; }
+    .moves__value { font-size: 18px; }
+    .moves__opt { font-size: 15px; }
+    .moves__label { font-size: 9px; letter-spacing: .1em; }
+    .btn { font-size: 10px; letter-spacing: .08em; padding: 8px 12px; }
+    .switch__opt { font-size: 10px; letter-spacing: .06em; padding: 7px 10px; }
+  }
+  @media (max-width: 360px) {
+    .btn { padding: 8px 9px; }
+    .switch__opt { padding: 7px 8px; }
+  }
+  /* Bricht die Zeile trotzdem um (siehe fitRows): erst enger, dann ohne die
+     Beschriftungen der Zugzahlen. */
+  .controls.is-tight .btn { font-size: 9.5px; letter-spacing: .04em; padding: 8px 9px; }
+  .controls.is-tight .switch__opt { font-size: 9.5px; letter-spacing: .03em; padding: 7px 7px; }
+  .controls.is-bare .moves__label { display: none; }
+
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile, .tile__inner, .card, .glow, .pip { transition-duration: 1ms; }
+    .board.is-clear .tile__inner, .pips.is-last .pip.on, .tile.is-hint::after { animation: none; }
+  }
+</style>
+
+<div class="glow" id="glow"></div>
+
+<main class="app">
+  <header>
+    <h1 class="wordmark"><span class="c">COLOR</span><span class="dot">·</span><span class="y">FLIP</span></h1>
+    <div class="header-actions">
+      <button class="pill" id="lang" type="button">EN</button>
+      <button class="pill" id="sound" aria-pressed="true" type="button">Sound on</button>
+      <button class="pill" id="again" type="button">Restart</button>
+    </div>
+  </header>
+
+  <section class="stats">
+    <div class="stat">
+      <span class="stat__label" id="lblLevel">Level</span>
+      <span class="stat__value" id="level">1</span>
+    </div>
+    <div class="stat stat--now">
+      <span class="stat__label" id="lblPuzzle">Points</span>
+      <span class="stat__value" id="levelScore">50</span>
+    </div>
+    <div class="stat stat--bonus">
+      <span class="stat__label" id="lblBonus">Bonus</span>
+      <span class="stat__value" id="bonusScore">50</span>
+    </div>
+    <div class="stat">
+      <span class="stat__label" id="lblScore">Score</span>
+      <span class="stat__value" id="score">0</span>
+    </div>
+    <div class="stat stat--best">
+      <span class="stat__label" id="lblBest">High Score</span>
+      <button class="stat__value" id="best" type="button">0</button>
+    </div>
+  </section>
+
+  <!-- Drei Vorräte in einer Zeile: Fortschritt, Hinweise, Leben. -->
+  <div class="meta-row">
+    <div class="meter">
+      <span class="meter__label" id="lblProgress">Next level</span>
+      <div class="pips" id="progress"></div>
+    </div>
+    <div class="meter meter--mid">
+      <span class="meter__label" id="lblHints">Hints</span>
+      <div class="pips" id="hints"></div>
+    </div>
+    <div class="meter meter--right">
+      <span class="meter__label" id="lblLives">Lives</span>
+      <div class="pips" id="lives"></div>
+    </div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+
+    <div class="card" id="clearCard" aria-live="polite">
+      <p class="card__title" id="clearTitle">LEVEL CLEAR</p>
+      <p class="card__points" id="clearPoints">+2000</p>
+      <p class="card__bonus" id="clearBonus"></p>
+      <p class="card__meta" id="clearMeta"></p>
+    </div>
+
+    <div class="card" id="overCard" aria-live="polite">
+      <p class="card__title is-over" id="overTitle">GAME OVER</p>
+      <p class="card__points" id="overScore">0</p>
+      <p class="card__meta" id="overMeta"></p>
+      <button class="btn card__btn" id="newGame" type="button">New game</button>
+    </div>
+  </div>
+
+  <!--
+    Drei feste Spalten: links die Zugzahlen, in der Mitte der Hinweis-Knopf,
+    rechts der Schalter. Weil die Aussenspalten gleich breit sind, sitzt der
+    Knopf wirklich mittig — und verschwindet er in HARD, rückt nichts nach.
+  -->
+  <div class="controls">
+    <div class="moves">
+      <span class="moves__value" id="moves">0</span>
+      <span class="moves__label" id="lblMoves">Moves</span>
+      <span class="moves__value moves__opt" id="optValue">2</span>
+      <span class="moves__label" id="lblOptimal">Optimal</span>
+    </div>
+
+    <button class="btn btn--hint" id="solve" type="button">Hint</button>
+
+    <div class="switch" id="modes" role="group">
+      <span class="switch__thumb" aria-hidden="true"></span>
+      <button class="switch__opt" id="modeEasy" type="button" aria-pressed="true">Easy</button>
+      <button class="switch__opt" id="modeHard" type="button" aria-pressed="false">Hard</button>
+    </div>
+  </div>
+
+  <div class="hint" id="hintText" hidden></div>
+
+  <div class="foot">
+    <button class="pill" id="rules" type="button" aria-expanded="false" aria-controls="hintText">Rules</button>
+    <span class="version" id="version"></span>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================
+   * Localisation — add a language by adding one block here.
+   * ======================================================= */
+  var I18N = {
+    en: {
+      code: "EN",
+      soundOn: "Sound",
+      soundOff: "Muted",
+      restart: "Restart",
+      lblLevel: "Level",
+      lblPuzzle: "Points",
+      lblBonus: "Bonus",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "Moves",
+      lblLives: "Lives",
+      lblProgress: "Next level",
+      lblProgressMax: "Top level",
+      lblHints: "Hints",
+      rules: "Rules",
+      hint: "<h3>Goal</h3><p>Bring all 16 tiles to the same color — all cyan or all yellow, either one counts.</p><h3>How a move works</h3><p>Tapping a tile flips it and its <b>direct neighbors</b>: above, below, left, right — never diagonally. The order of your moves does not matter, and tapping the same tile twice cancels itself out.</p><h3>The optimum</h3><p>Every puzzle can be solved. <b>Optimal</b> shows how many moves are needed from the position in front of you — that number is called par, and it is recounted after every move.</p><h3>Points</h3><ul><li>A puzzle is worth <b>60 points per level</b>: 60 in level 1, up to 300 in level 5.</li><li>Solved in par: the full value plus a <b>60 bonus</b>.</li><li>Every click above par costs a fifth of the value. Five above par end the puzzle and cost a life.</li><li>A <b>hint</b> marks one optimal tile. It costs the bonus plus a par-th of the value — never a life. Five hints per game.</li></ul><h3>Getting ahead</h3><p>Five perfect solves — in par, without a hint — reach the next level. There are five levels; they do not get faster, they get trickier. Three lives; at zero the game is over.</p><h3><span class='easy'>Easy</span> and <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>: the optimum is on display, hints are available, and only five clicks above par cost a life.</li><li><span class='hard'>Hard</span>: the optimum stays hidden, there are no hints, and every puzzle finished above par costs a life — at most one per puzzle, and nothing is ever aborted.</li><li>Each mode keeps its own high score. The choice holds for a whole game and can only be made before the first move.</li></ul>",
+      lblOptimal: "Optimal",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "Difficulty — can only be set before the first move of a game",
+      hintBtn: "Hint",
+      hintTitle: "Marks one tile of an optimal solution — costs the bonus and a par-th of the points",
+      resetBest: "Reset?",
+      resetBestTitle: "Tap to reset the high score",
+      hintOne: "hint",
+      hintMany: "hints",
+      titleClear: "SOLVED",
+      titlePerfect: "PERFECT",
+      titleLevelUp: "LEVEL UP",
+      titleLost: "LIFE LOST",
+      titleOver: "GAME OVER",
+      cardZero: "0 points",
+      cardMeta: "{m} {moves} · optimum {o}",
+      moveOne: "move",
+      moveMany: "moves",
+      cardBonus: "{base} + {bonus} perfect bonus",
+      cardHintNote: " · {n} {hints}",
+      cardAbortNote: " · out of points, puzzle aborted",
+      overScore: "{score} points",
+      overMeta: "Level {level} · Best {best}",
+      newGame: "New game",
+      tileLabel: "Tile row {r}, column {c}"
+    },
+    de: {
+      code: "DE",
+      soundOn: "Ton",
+      soundOff: "Stumm",
+      restart: "Neustart",
+      lblLevel: "Level",
+      lblPuzzle: "Punkte",
+      lblBonus: "Bonus",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "Züge",
+      lblLives: "Leben",
+      lblProgress: "Nächstes Level",
+      lblProgressMax: "Höchstes Level",
+      lblHints: "Hinweise",
+      rules: "Regeln",
+      hint: "<h3>Ziel</h3><p>Alle 16 Kacheln auf dieselbe Farbe bringen — ganz Cyan oder ganz Gelb, beides zählt.</p><h3>Was ein Zug bewirkt</h3><p>Ein Tipp flippt die Kachel und ihre <b>direkten Nachbarn</b>: oben, unten, links, rechts — nie diagonal. Die Reihenfolge der Züge ist egal, und zweimal dieselbe Kachel hebt sich auf.</p><h3>Das Optimum</h3><p>Jedes Rätsel ist lösbar. <b>Optimal</b> zeigt, wie viele Züge von der Stellung vor dir aus nötig sind — diese Zahl heißt Par und wird nach jedem Zug neu bestimmt.</p><h3>Punkte</h3><ul><li>Ein Rätsel ist <b>60 Punkte pro Level</b> wert: 60 in Level 1, bis zu 300 in Level 5.</li><li>In Par gelöst: der volle Wert plus <b>60 Bonus</b>.</li><li>Jeder Klick über Par kostet ein Fünftel des Werts. Fünf über Par beenden das Rätsel und kosten ein Leben.</li><li>Ein <b>Hinweis</b> markiert eine optimale Kachel. Er kostet den Bonus und ein Par-tel des Werts — nie ein Leben. Fünf Hinweise pro Spiel.</li></ul><h3>Weiterkommen</h3><p>Fünf perfekte Lösungen — in Par, ohne Hinweis — bringen das nächste Level. Es gibt fünf Level; sie werden nicht schneller, sondern kniffliger. Drei Leben; bei null ist das Spiel vorbei.</p><h3><span class='easy'>Easy</span> und <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>: Das Optimum steht da, Hinweise sind erlaubt, und ein Leben kosten erst fünf Klicks über Par.</li><li><span class='hard'>Hard</span>: Das Optimum bleibt verborgen, es gibt keine Hinweise, und jedes über Par beendete Rätsel kostet ein Leben — höchstens eins pro Rätsel, abgebrochen wird nie.</li><li>Jeder Modus führt seine eigene Bestenliste. Die Wahl gilt für ein ganzes Spiel und ist nur vor dem ersten Zug möglich.</li></ul>",
+      lblOptimal: "Optimal",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "Schwierigkeit — nur vor dem ersten Zug eines Spiels umstellbar",
+      hintBtn: "Hinweis",
+      hintTitle: "Markiert eine Kachel einer optimalen Lösung — kostet den Bonus und ein Par-tel der Punkte",
+      resetBest: "Zurücksetzen?",
+      resetBestTitle: "Antippen, um den Highscore zurückzusetzen",
+      hintOne: "Hinweis",
+      hintMany: "Hinweise",
+      titleClear: "GELÖST",
+      titlePerfect: "PERFEKT",
+      titleLevelUp: "LEVEL UP",
+      titleLost: "LEBEN VERLOREN",
+      titleOver: "GAME OVER",
+      cardZero: "0 Punkte",
+      cardMeta: "{m} {moves} · Optimum {o}",
+      moveOne: "Zug",
+      moveMany: "Züge",
+      cardBonus: "{base} + {bonus} Perfekt-Bonus",
+      cardHintNote: " · {n} {hints}",
+      cardAbortNote: " · keine Punkte mehr, Rätsel abgebrochen",
+      overScore: "{score} Punkte",
+      overMeta: "Level {level} · Bestwert {best}",
+      newGame: "Neues Spiel",
+      tileLabel: "Kachel Zeile {r}, Spalte {c}"
+    }
+  };
+  var LANGS = ["en", "de"];
+  var lang = "en";
+
+  function t(key, vars) {
+    var dict = I18N[lang] || I18N.en;
+    var s = dict[key];
+    if (s === undefined) s = I18N.en[key];
+    if (s === undefined) return key;
+    if (vars) {
+      for (var k in vars) {
+        if (Object.prototype.hasOwnProperty.call(vars, k)) s = s.split("{" + k + "}").join(vars[k]);
+      }
+    }
+    return s;
+  }
+
+  /* ---------- Rules ---------- */
+  var SIZE = 4, N = SIZE * SIZE, ALL = 0xFFFF;
+  var LIVES_MAX = 3;
+  var VERSION = "1.2.0";        // bei jeder veroeffentlichten Aenderung hochzaehlen
+  var HINTS_MAX = 5;            // Hinweise pro Spiel, nicht pro Raetsel
+  var PERFECT_TO_ADVANCE = 5;   // perfect solves needed for the next level
+  var PENALTY_STEPS = 5;        // clicks over the optimum until a puzzle is worthless
+  var POINTS_PER_LEVEL = 60;    // a puzzle in level n is worth n x 60
+  var PERFECT_BONUS = 60;       // extra for solving in the minimum number of moves
+  var STORE_BEST_EASY = "colorflip.best.easy2";
+  var STORE_BEST_HARD = "colorflip.best.hard2";
+  var STORE_BEST_HARD_OLD = "colorflip.best.hard";   // Bestwert der 50er-Skala
+  var STORE_LANG = "colorflip.lang";
+  var STORE_MODE = "colorflip.mode";
+  var STORE_RULES = "colorflip.rules";
+
+  /* ---------- Elements ---------- */
+  var boardEl   = document.getElementById("board");
+  var levelEl   = document.getElementById("level");
+  var lvlScoreEl= document.getElementById("levelScore");
+  var bonusEl   = document.getElementById("bonusScore");
+  var scoreEl   = document.getElementById("score");
+  var bestEl    = document.getElementById("best");
+  var movesEl   = document.getElementById("moves");
+  var optValueEl= document.getElementById("optValue");
+  var solveEl   = document.getElementById("solve");
+  var modesEl   = document.getElementById("modes");
+  var modeEasyEl= document.getElementById("modeEasy");
+  var modeHardEl= document.getElementById("modeHard");
+  var versionEl = document.getElementById("version");
+  var soundEl   = document.getElementById("sound");
+  var langEl    = document.getElementById("lang");
+  var againEl   = document.getElementById("again");
+  var glowEl    = document.getElementById("glow");
+  var hintEl    = document.getElementById("hintText");
+  var cardEl    = document.getElementById("clearCard");
+  var cardTitle = document.getElementById("clearTitle");
+  var cardPts   = document.getElementById("clearPoints");
+  var cardBonus = document.getElementById("clearBonus");
+  var cardMeta  = document.getElementById("clearMeta");
+  var overCard  = document.getElementById("overCard");
+  var overTitle = document.getElementById("overTitle");
+  var overScore = document.getElementById("overScore");
+  var overMeta  = document.getElementById("overMeta");
+  var newGameEl = document.getElementById("newGame");
+  var livesEl   = document.getElementById("lives");
+  var hintsEl   = document.getElementById("hints");
+  var rulesEl   = document.getElementById("rules");
+  var progressEl= document.getElementById("progress");
+  var labels = {
+    lblLevel:    document.getElementById("lblLevel"),
+    lblPuzzle:   document.getElementById("lblPuzzle"),
+    lblBonus:    document.getElementById("lblBonus"),
+    lblScore:    document.getElementById("lblScore"),
+    lblBest:     document.getElementById("lblBest"),
+    lblMoves:    document.getElementById("lblMoves"),
+    lblLives:    document.getElementById("lblLives"),
+    lblOptimal:  document.getElementById("lblOptimal"),
+    lblProgress: document.getElementById("lblProgress"),
+    lblHints:    document.getElementById("lblHints")
+  };
+
+  /* ---------- State ---------- */
+  var state = new Array(N);      // 0 = cyan, 1 = yellow
+  var rotation = new Array(N);
+  var optimalMoves = 0;          // par of the current puzzle
+  var puzzleValue = 0;           // full point value of the current puzzle
+  var restMoves = 0;
+  var tiles = [], lifePips = [], progressPips = [], hintPips = [];
+  var levelIdx = 0, perfect = 0, score = 0, moves = 0, best = 0, lives = LIVES_MAX;
+  var locked = false, over = false;
+  // hintCount zählt die Hinweise des Rätsels (Punktabzug), hintShown die
+  // Kacheln, die an der aktuellen Stellung aufgedeckt sind.
+  var hintCount = 0, hintShown = 0;
+  var hintsLeft = HINTS_MAX;   // Vorrat fuer das ganze Spiel
+  // Sobald ein Spiel läuft, steht die Schwierigkeit fest — sie lässt sich erst
+  // im nächsten Spiel wieder umstellen, nicht zwischen zwei Leveln.
+  var gameStarted = false;
+  var hardMode = false;   // "hard": Optimum verborgen, jeder Zug über Par kostet ein Leben
+  var soundOn = true, audioCtx = null;
+
+  /* =========================================================
+   * The puzzle catalogue, computed at startup (~30 ms).
+   *
+   * A click adds a fixed vector over GF(2), so a board is solvable exactly
+   * when it is reachable from a monochrome board. Breadth-first search from
+   * both monochrome boards gives the optimal move count for every solvable
+   * board. On top of that sits a difficulty measure in bits: with g of 16
+   * clicks reducing the distance, a move costs log2(16/g) bits of decision —
+   * a move where every click is correct is free. Summed along the most
+   * forgiving optimal path, that is what a puzzle really demands.
+   * ======================================================= */
+  var MOVE = new Uint16Array(N);
+  var dist = new Int8Array(65536);
+  var bits = new Float32Array(65536);
+  var levels = [];
+  var bags = [];
+
+  function buildCatalogue() {
+    var i, r, c, m, d, b, x;
+    for (i = 0; i < N; i++) {
+      r = Math.floor(i / SIZE); c = i % SIZE;
+      m = 1 << i;
+      if (r > 0) m |= 1 << (i - SIZE);
+      if (r < SIZE - 1) m |= 1 << (i + SIZE);
+      if (c > 0) m |= 1 << (i - 1);
+      if (c < SIZE - 1) m |= 1 << (i + 1);
+      MOVE[i] = m;
+    }
+
+    for (i = 0; i < 65536; i++) dist[i] = -1;
+    var buckets = [[0, ALL]];
+    dist[0] = 0; dist[ALL] = 0;
+    for (d = 1; buckets[d - 1].length; d++) {
+      var next = [];
+      for (var q = 0; q < buckets[d - 1].length; q++) {
+        b = buckets[d - 1][q];
+        for (i = 0; i < N; i++) {
+          x = b ^ MOVE[i];
+          if (dist[x] === -1) { dist[x] = d; next.push(x); }
+        }
+      }
+      buckets.push(next);
+    }
+
+    for (d = 1; d < buckets.length; d++) {
+      for (var j = 0; j < buckets[d].length; j++) {
+        b = buckets[d][j];
+        var g = 0, low = Infinity;
+        for (i = 0; i < N; i++) {
+          x = b ^ MOVE[i];
+          if (dist[x] === d - 1) { g++; if (bits[x] < low) low = bits[x]; }
+        }
+        bits[b] = Math.log2(16 / g) + low;
+      }
+    }
+
+    // The 8 symmetries of the square; with the colour swap they fold the
+    // 4096 solvable boards into 310 genuinely different puzzles.
+    var perms = [], fs = [
+      function (r, c) { return [r, c]; },
+      function (r, c) { return [c, 3 - r]; },
+      function (r, c) { return [3 - r, 3 - c]; },
+      function (r, c) { return [3 - c, r]; },
+      function (r, c) { return [r, 3 - c]; },
+      function (r, c) { return [3 - r, c]; },
+      function (r, c) { return [c, r]; },
+      function (r, c) { return [3 - c, 3 - r]; }
+    ];
+    for (var f = 0; f < fs.length; f++) {
+      var p = new Uint8Array(N);
+      for (r = 0; r < SIZE; r++) for (c = 0; c < SIZE; c++) {
+        var rc = fs[f](r, c);
+        p[r * SIZE + c] = rc[0] * SIZE + rc[1];
+      }
+      perms.push(p);
+    }
+    PERMS = perms;
+
+    var seen = new Uint8Array(65536), classes = [];
+    for (d = 2; d < buckets.length; d++) {
+      for (var k = 0; k < buckets[d].length; k++) {
+        b = buckets[d][k];
+        if (seen[b]) continue;
+        // Collect the distinct presentations of this puzzle: up to 16, fewer
+        // when the pattern is symmetric enough to map onto itself.
+        var variants = [], mark = {};
+        for (var pi = 0; pi < perms.length; pi++) {
+          x = permute(b, perms[pi]);
+          seen[x] = 1; seen[x ^ ALL] = 1;
+          if (!mark[x]) { mark[x] = 1; variants.push(x); }
+          if (!mark[x ^ ALL]) { mark[x ^ ALL] = 1; variants.push(x ^ ALL); }
+        }
+        classes.push({
+          mask: b, par: d, bits: bits[b],
+          pts: Math.round(100 * bits[b] / 50) * 50,
+          variants: variants, vbag: []
+        });
+      }
+    }
+
+    /*
+     * Difficulty bands: the classes sorted by measured difficulty, cut into
+     * five equal fifths. Band 1 is the most forgiving, band 5 the hardest.
+     */
+    classes.sort(function (a, b) { return a.bits - b.bits; });
+    var bandSize = Math.ceil(classes.length / 5);
+    for (i = 0; i < classes.length; i++) classes[i].band = Math.floor(i / bandSize) + 1;
+
+    /*
+     * The levels mix measured difficulty with how hard a puzzle *reads*.
+     * Level 1 is pure 2-move puzzles so the mechanic is obvious; from there
+     * both the move count and the band climb. Six-move puzzles are left out
+     * entirely — every first click is correct, so it is a move without a
+     * decision.
+     */
+    var pick = function (fn) {
+      var out = [];
+      for (var k = 0; k < classes.length; k++) {
+        if (classes[k].par !== 6 && fn(classes[k])) out.push(classes[k]);
+      }
+      return out;
+    };
+    var l1 = pick(function (c) { return c.par === 2; });
+    var l2 = pick(function (c) { return c.par === 3 && c.band <= 3; });
+    var l3 = pick(function (c) { return (c.par === 3 && c.band === 4) || (c.par === 4 && c.band <= 2); });
+    var l4 = pick(function (c) { return (c.par === 4 && (c.band === 3 || c.band === 4)) || (c.par === 5 && c.band === 1); });
+    var taken = {};
+    [l1, l2, l3, l4].forEach(function (lv) { lv.forEach(function (c) { taken[c.mask] = 1; }); });
+    var l5 = pick(function (c) { return !taken[c.mask]; });
+
+    levels = [l1, l2, l3, l4, l5];
+    bags = [[], [], [], [], []];
+  }
+
+  var PERMS = [];
+  function permute(b, p) {
+    var o = 0;
+    for (var i = 0; i < N; i++) if ((b >> i) & 1) o |= 1 << p[i];
+    return o;
+  }
+
+  function boardMask() {
+    var m = 0;
+    for (var i = 0; i < N; i++) if (state[i]) m |= 1 << i;
+    return m;
+  }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  /*
+   * Two nested shuffle bags. The outer one holds the puzzles of the current
+   * level, so none repeats until every other one has been played. The inner
+   * one holds that puzzle's own presentations — rotated, mirrored, colours
+   * swapped — so every raw board is used before any of them comes back.
+   */
+  function drawPuzzle() {
+    var pool = levels[levelIdx], bag = bags[levelIdx];
+    if (!bag.length) {
+      for (var i = 0; i < pool.length; i++) bag.push(i);
+      shuffle(bag);
+    }
+    return pool[bag.pop()];
+  }
+
+  function drawBoard(cls) {
+    if (!cls.vbag.length) cls.vbag = shuffle(cls.variants.slice());
+    return cls.vbag.pop();
+  }
+
+  /* ---------- Storage ---------- */
+  function load(key) { try { return window.localStorage.getItem(key); } catch (e) { return null; } }
+  function save(key, value) { try { window.localStorage.setItem(key, value); } catch (e) { /* unavailable */ } }
+
+  /* Easy und Hard führen getrennte Bestenlisten. */
+  function bestKey() { return hardMode ? STORE_BEST_HARD : STORE_BEST_EASY; }
+  function loadBest() {
+    var v = parseInt(load(bestKey()), 10);
+    best = isFinite(v) && v > 0 ? v : 0;
+  }
+  function storeBest() { save(bestKey(), String(best)); }
+
+  /* ---------- Sound ---------- */
+  function blip(freq, dur) {
+    if (!soundOn) return;
+    try {
+      if (!audioCtx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        audioCtx = new AC();
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      var now = audioCtx.currentTime;
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.09, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + dur + 0.02);
+    } catch (e) { /* audio is optional */ }
+  }
+  function lifeLostSound() {
+    blip(160, 0.28);
+    window.setTimeout(function () { blip(90, 0.55); }, 190);
+  }
+
+  /* ---------- Tiles ---------- */
+  function neighbours(i) {
+    var r = Math.floor(i / SIZE), c = i % SIZE, out = [i];
+    if (r > 0) out.push(i - SIZE);
+    if (r < SIZE - 1) out.push(i + SIZE);
+    if (c > 0) out.push(i - 1);
+    if (c < SIZE - 1) out.push(i + 1);
+    return out;
+  }
+
+  function buildTiles() {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < N; i++) {
+      var btn = document.createElement("button");
+      btn.className = "tile";
+      btn.type = "button";
+      btn.dataset.index = String(i);
+      var inner = document.createElement("span");
+      inner.className = "tile__inner";
+      var a = document.createElement("span"); a.className = "face face--cyan";
+      var b = document.createElement("span"); b.className = "face face--yellow";
+      inner.appendChild(a); inner.appendChild(b);
+      btn.appendChild(inner);
+      btn.addEventListener("click", onTileClick);
+      frag.appendChild(btn);
+      tiles.push({ btn: btn, inner: inner });
+    }
+    boardEl.appendChild(frag);
+  }
+
+  function applyRotation(i, animate) {
+    var inner = tiles[i].inner;
+    var css = "rotateY(" + rotation[i] + "deg)";
+    if (!animate) {
+      inner.style.transition = "none";
+      inner.style.transform = css;
+      void inner.offsetWidth;
+      inner.style.transition = "";
+    } else {
+      inner.style.transform = css;
+    }
+    tiles[i].btn.setAttribute("aria-pressed", state[i] === 1 ? "true" : "false");
+  }
+
+  function flipGroup(i) {
+    var group = neighbours(i);
+    for (var k = 0; k < group.length; k++) {
+      var idx = group[k];
+      state[idx] ^= 1;
+      rotation[idx] += 180;
+      applyRotation(idx, true);
+    }
+  }
+
+  function isSolved() {
+    for (var i = 1; i < N; i++) if (state[i] !== state[0]) return false;
+    return true;
+  }
+
+  /* One optimal solution from the current board, read off the distance map. */
+  function optimalSet() {
+    var b = boardMask(), out = [], d = dist[b], guard = 0;
+    while (d > 0 && guard++ < 24) {
+      for (var i = 0; i < N; i++) {
+        if (dist[b ^ MOVE[i]] === d - 1) { out.push(i); b ^= MOVE[i]; d--; break; }
+      }
+    }
+    return out;
+  }
+
+  /* ---------- Levels ---------- */
+  function newPuzzle() {
+    var cls = drawPuzzle();
+    var b = drawBoard(cls);
+
+    for (var i = 0; i < N; i++) {
+      state[i] = (b >> i) & 1;
+      rotation[i] = state[i] * 180;
+      applyRotation(i, false);
+    }
+    optimalMoves = cls.par;
+    puzzleValue = (levelIdx + 1) * POINTS_PER_LEVEL;
+    moves = 0;
+    hintCount = 0;
+    hintShown = 0;
+    render();
+  }
+
+  /*
+   * A puzzle is worth 60 points per level: 60 in level 1, 300 in level 5.
+   * Solving it in the minimum number of moves adds a flat bonus. Two things
+   * take value away, and both are whole numbers by construction — 60 is the
+   * smallest unit divisible by every par (2..5) and by the five penalty steps:
+   *   - every click above the optimum costs a fifth of the value,
+   *   - every hint costs a par-th of it, so par hints reduce it to nothing.
+   * The value has a floor of zero and hints never end a puzzle: whoever asks
+   * for help can always be led all the way to the solution. Only the player's
+   * own detours are limited — five clicks over par end the puzzle.
+   */
+  function hintCost() { return puzzleValue / optimalMoves; }
+  function stepCost() { return puzzleValue / PENALTY_STEPS; }
+  function overPar() { return Math.max(0, moves - optimalMoves); }
+
+  function baseFor(m) {
+    var extra = Math.max(0, m - optimalMoves);
+    var v = puzzleValue - hintCount * hintCost() - extra * stepCost();
+    return v > 0 ? Math.round(v) : 0;
+  }
+  function bonusFor(m) {
+    return (hintCount === 0 && m <= optimalMoves) ? PERFECT_BONUS : 0;
+  }
+  function pointsFor(m) {
+    return baseFor(m) + bonusFor(m);
+  }
+
+  function onTileClick(ev) {
+    if (locked || over) return;
+    gameStarted = true;
+    var i = parseInt(ev.currentTarget.dataset.index, 10);
+    flipGroup(i);
+    moves++;
+    hintShown = 0;   // ein Zug räumt die Markierungen ab
+    blip(470, 0.09);
+    render();
+    if (isSolved()) { puzzleClear(); return; }
+    /*
+     * Abgebrochen wird allein wegen eigener Fehlklicks — fünf über Par. Was
+     * Hinweise gekostet haben, spielt hier bewusst keine Rolle: Sonst würde
+     * gerade der Spieler abgewürgt, der sich Hilfe geholt hat.
+     * Im harten Modus wird nie abgebrochen.
+     */
+    if (!hardMode && overPar() >= PENALTY_STEPS) failPuzzle();
+  }
+
+  function setCovered(on) {
+    boardEl.parentNode.classList.toggle("is-covered", !!on);
+  }
+
+  function showCard(title, titleClass, points, voidPoints, note, bonusLine) {
+    setCovered(true);
+    cardBonus.textContent = bonusLine || "";
+    cardTitle.textContent = title;
+    cardTitle.className = "card__title" + (titleClass ? " " + titleClass : "");
+    cardPts.textContent = points;
+    cardPts.classList.toggle("is-void", !!voidPoints);
+    cardMeta.textContent = t("cardMeta", {
+      m: moves,
+      moves: t(moves === 1 ? "moveOne" : "moveMany"),
+      o: optimalMoves
+    }) + (note || "");
+    cardEl.classList.add("show");
+  }
+
+  function puzzleClear() {
+    locked = true;
+    var gained = pointsFor(moves);
+    // Ein Leben kosten nur eigene Fehlklicks: fünf über Par — und im harten
+    // Modus schon der erste. Hinweise kosten ausschließlich Punkte.
+    var lostLife = overPar() >= PENALTY_STEPS || (hardMode && moves > optimalMoves);
+    var wasPerfect = hintCount === 0 && moves <= optimalMoves;
+    var levelUp = false;
+
+    if (lostLife) lives--;
+    if (wasPerfect && !over) {
+      perfect++;
+      if (perfect >= PERFECT_TO_ADVANCE && levelIdx < levels.length - 1) {
+        levelIdx++;
+        perfect = 0;
+        levelUp = true;
+      } else if (levelIdx === levels.length - 1) {
+        perfect = Math.min(perfect, PERFECT_TO_ADVANCE);
+      }
+    }
+
+    boardEl.classList.add("is-clear");
+    setTiles(true);
+    if (lostLife) {
+      lifeLostSound();
+    } else {
+      blip(660, 0.16);
+      window.setTimeout(function () { blip(levelUp ? 1046 : 880, 0.22); }, 130);
+      if (levelUp) window.setTimeout(function () { blip(1318, 0.26); }, 300);
+    }
+
+    showCard(
+      levelUp ? t("titleLevelUp") : wasPerfect ? t("titlePerfect") : lostLife ? t("titleLost") : t("titleClear"),
+      levelUp || wasPerfect ? "is-perfect" : lostLife ? "is-lost" : "",
+      gained > 0 ? "+" + gained : t("cardZero"),
+      gained === 0,
+      hintCount ? t("cardHintNote", { n: hintCount, hints: t(hintCount === 1 ? "hintOne" : "hintMany") }) : "",
+      wasPerfect ? t("cardBonus", { base: baseFor(moves), bonus: PERFECT_BONUS }) : ""
+    );
+
+    score += gained;
+    if (score > best) { best = score; storeBest(); }
+    render();
+
+    window.setTimeout(function () {
+      cardEl.classList.remove("show");
+      boardEl.classList.remove("is-clear");
+      if (lives <= 0) { endGame(); return; }
+      setCovered(false);
+      newPuzzle();
+      setTiles(false);
+      locked = false;
+      render();
+    }, 2500);
+  }
+
+  function failPuzzle() {
+    locked = true;
+    lives--;
+    setTiles(true);
+    lifeLostSound();
+    showCard(t("titleLost"), "is-lost", t("cardZero"), true,
+      hintCount ? t("cardHintNote", { n: hintCount, hints: t(hintCount === 1 ? "hintOne" : "hintMany") }) + t("cardAbortNote")
+                : t("cardAbortNote"));
+    render();
+
+    window.setTimeout(function () {
+      cardEl.classList.remove("show");
+      if (lives <= 0) { endGame(); return; }
+      setCovered(false);
+      newPuzzle();
+      setTiles(false);
+      locked = false;
+      render();
+    }, 2500);
+  }
+
+  function endGame() {
+    over = true;
+    locked = true;
+    setTiles(true);
+    if (score > best) { best = score; storeBest(); }
+    renderOverCard();
+    setCovered(true);
+    overCard.classList.add("show");
+    blip(220, 0.3);
+    window.setTimeout(function () { blip(150, 0.5); }, 200);
+    render();
+  }
+
+  function renderOverCard() {
+    overTitle.textContent = t("titleOver");
+    overScore.textContent = t("overScore", { score: score });
+    overMeta.textContent = t("overMeta", { level: levelIdx + 1, best: best });
+    newGameEl.textContent = t("newGame");
+  }
+
+  function newGame() {
+    overCard.classList.remove("show");
+    cardEl.classList.remove("show");
+    setCovered(false);
+    over = false;
+    locked = false;
+    levelIdx = 0;
+    perfect = 0;
+    score = 0;
+    lives = LIVES_MAX;
+    hintsLeft = HINTS_MAX;
+    gameStarted = false;
+    for (var i = 0; i < levels.length; i++) bags[i] = [];
+    setTiles(false);
+    newPuzzle();
+    blip(520, 0.12);
+  }
+
+  function setTiles(disabled) {
+    for (var i = 0; i < N; i++) tiles[i].btn.disabled = disabled;
+  }
+
+  /* ---------- Hints ----------
+   * Ein Hinweis deckt genau eine Kachel eines optimalen Weges auf. Die Kacheln
+   * stammen immer aus derselben Lösung, damit zwei Hinweise auch zusammen
+   * optimal bleiben; nach par Hinweisen steht die ganze Lösung da — und das
+   * Rätsel ist dann rechnerisch nichts mehr wert.
+   */
+  function onHint() {
+    if (locked || over || hardMode || hintsLeft <= 0) return;
+    var sol = optimalSet();
+    if (hintShown >= sol.length) return;   // es gibt nichts weiter aufzudecken
+    gameStarted = true;
+    hintShown++;
+    hintCount++;
+    hintsLeft--;
+    blip(392, 0.1);
+    render();
+  }
+
+  function renderHints() {
+    var i;
+    for (i = 0; i < N; i++) tiles[i].btn.classList.remove("is-hint");
+    if (!hintShown || locked || hardMode) return;
+    // Die Markierungen gelten nur fuer die aktuelle Stellung; was die Hinweise
+    // gekostet haben, steht ohnehin laufend in der Punkteanzeige.
+    var sol = optimalSet();
+    for (i = 0; i < hintShown && i < sol.length; i++) tiles[sol[i]].btn.classList.add("is-hint");
+  }
+
+  /* ---------- High score reset ---------- */
+  var arming = 0;   // timer id while the reset is armed
+
+  function armBestReset() {
+    arming = window.setTimeout(function () {
+      arming = 0;
+      bestEl.classList.remove("is-arming");
+      render();
+    }, 4000);
+    bestEl.classList.add("is-arming");
+    bestEl.textContent = t("resetBest");
+  }
+
+  function onBestClick() {
+    if (arming) {
+      window.clearTimeout(arming);
+      arming = 0;
+      bestEl.classList.remove("is-arming");
+      best = 0;
+      storeBest();
+      blip(300, 0.12);
+      render();
+    } else {
+      armBestReset();
+    }
+  }
+
+  /* ---------- Display ---------- */
+  function render() {
+    var base = baseFor(moves), bonus = bonusFor(moves);
+    var atMax = levelIdx === levels.length - 1;
+
+    levelEl.textContent = levelIdx + 1;
+    // Im harten Modus steht dort der erreichbare Wert — er bleibt während des
+    // Rätsels konstant und verrät damit nichts über Par. Was tatsächlich
+    // herauskam, zeigt die Abschlusskarte.
+    lvlScoreEl.textContent = hardMode ? puzzleValue : base;
+    lvlScoreEl.classList.toggle("is-void", !hardMode && base === 0);
+    bonusEl.textContent = hardMode ? PERFECT_BONUS : bonus;
+    bonusEl.classList.toggle("is-live", hardMode || bonus > 0);
+    scoreEl.textContent = score;
+    if (!arming) bestEl.textContent = best;
+    movesEl.textContent = moves;
+
+    restMoves = dist[boardMask()];
+    // Im harten Modus bleibt die Zahl verborgen — ein Fragezeichen sagt das
+    // deutlicher als eine leere Stelle.
+    optValueEl.textContent = hardMode ? "?" : restMoves;
+    optValueEl.classList.toggle("is-veiled", hardMode);
+
+    // Im harten Modus gibt es keine Hilfe — der Knopf ist dort gar nicht da.
+    solveEl.classList.toggle("is-gone", hardMode);
+    solveEl.disabled = hintsLeft <= 0 || (hintShown > 0 && hintShown >= restMoves);
+
+    // Der Umschalter ist nur vor dem ersten Zug eines Spiels bedienbar.
+    var canSwitch = !gameStarted && !locked && !over;
+    modeEasyEl.disabled = !canSwitch;
+    modeHardEl.disabled = !canSwitch;
+    modesEl.classList.toggle("is-locked", !canSwitch);
+    modesEl.classList.toggle("is-hard", hardMode);
+    modeEasyEl.setAttribute("aria-pressed", hardMode ? "false" : "true");
+    modeHardEl.setAttribute("aria-pressed", hardMode ? "true" : "false");
+
+    for (var b = 0; b < LIVES_MAX; b++) lifePips[b].classList.toggle("on", b < lives);
+    livesEl.classList.toggle("is-last", lives === 1 && !over);
+
+    // Im harten Modus ist der Hinweisvorrat gegenstandslos — die Reihe liegt
+    // dann dunkel da, statt einen Vorrat vorzutaeuschen.
+    for (var h = 0; h < HINTS_MAX; h++) hintPips[h].classList.toggle("on", !hardMode && h < hintsLeft);
+    hintsEl.classList.toggle("is-empty", hardMode || hintsLeft === 0);
+    hintsEl.classList.toggle("is-last", !hardMode && hintsLeft === 1);
+
+    for (var p = 0; p < PERFECT_TO_ADVANCE; p++) progressPips[p].classList.toggle("on", p < perfect);
+    progressEl.classList.toggle("is-max", atMax);
+    labels.lblProgress.textContent = atMax ? t("lblProgressMax") : t("lblProgress");
+
+    var cyan = 0;
+    for (var i = 0; i < N; i++) if (state[i] === 0) cyan++;
+    var lean = cyan / N;
+    glowEl.style.setProperty(
+      "--ambient",
+      lean >= 0.5 ? "rgba(0,240,255," + (0.05 + lean * 0.12).toFixed(3) + ")"
+                  : "rgba(255,221,0," + (0.05 + (1 - lean) * 0.10).toFixed(3) + ")"
+    );
+
+    renderHints();
+  }
+
+  /* ---------- Language ---------- */
+  function applyLang() {
+    langEl.textContent = t("code");
+    soundEl.textContent = soundOn ? t("soundOn") : t("soundOff");
+    againEl.textContent = t("restart");
+    labels.lblLevel.textContent = t("lblLevel");
+    labels.lblPuzzle.textContent = t("lblPuzzle");
+    labels.lblBonus.textContent  = t("lblBonus");
+    labels.lblScore.textContent = t("lblScore");
+    labels.lblBest.textContent  = t("lblBest");
+    labels.lblMoves.textContent = t("lblMoves");
+    labels.lblLives.textContent = t("lblLives");
+    labels.lblOptimal.textContent = t("lblOptimal");
+    labels.lblHints.textContent = t("lblHints");
+    rulesEl.textContent = t("rules");
+    hintEl.innerHTML = "";
+    for (var li = 0; li < LANGS.length; li++) {
+      var para = document.createElement("div");
+      var active = LANGS[li] === lang;
+      para.className = "hint__text" + (active ? "" : " is-off");
+      para.innerHTML = (I18N[LANGS[li]] || I18N.en).hint;
+      if (!active) para.setAttribute("aria-hidden", "true");
+      hintEl.appendChild(para);
+    }
+    bestEl.title = t("resetBestTitle");
+    solveEl.textContent = t("hintBtn");
+    solveEl.title = t("hintTitle");
+    modeEasyEl.textContent = t("modeEasy");
+    modeHardEl.textContent = t("modeHard");
+    modesEl.title = t("modeTitle");
+    for (var i = 0; i < N; i++) {
+      tiles[i].btn.setAttribute("aria-label", t("tileLabel", {
+        r: Math.floor(i / SIZE) + 1,
+        c: (i % SIZE) + 1
+      }));
+    }
+    if (over) renderOverCard();
+    render();
+  }
+
+  /*
+   * Beschriftungen sind in jeder Sprache verschieden breit — dadurch bräche
+   * eine Knopfzeile mal um und mal nicht. Deshalb wird jedes betroffene
+   * Element einmal auf die breiteste Fassung aller Sprachen festgelegt.
+   */
+  function lockWidth(el, keys) {
+    if (!el) return;
+    var prev = el.textContent, max = 0, i, k;
+    el.style.minWidth = "";
+    for (i = 0; i < LANGS.length; i++) {
+      for (k = 0; k < keys.length; k++) {
+        var dict = I18N[LANGS[i]] || I18N.en;
+        if (dict[keys[k]] === undefined) continue;
+        el.textContent = dict[keys[k]];
+        if (el.offsetWidth > max) max = el.offsetWidth;
+      }
+    }
+    el.textContent = prev;
+    el.style.minWidth = Math.ceil(max) + "px";
+  }
+
+  function lockMeterWidths() {
+    lockWidth(labels.lblLives, ["lblLives"]);
+    lockWidth(labels.lblOptimal, ["lblOptimal"]);
+    lockWidth(labels.lblProgress, ["lblProgress", "lblProgressMax"]);
+    lockWidth(labels.lblHints, ["lblHints"]);
+  }
+  function lockButtonWidths() {
+    lockWidth(solveEl, ["hintBtn"]);
+    lockWidth(modeEasyEl, ["modeEasy", "modeHard"]);
+    lockWidth(modeHardEl, ["modeEasy", "modeHard"]);
+  }
+
+  function lockAllWidths() {
+    lockWidth(langEl, ["code"]);
+    lockWidth(soundEl, ["soundOn", "soundOff"]);
+    lockWidth(againEl, ["restart"]);
+    lockWidth(rulesEl, ["rules"]);
+    lockButtonWidths();
+    lockMeterWidths();
+    fitRows();
+  }
+
+  /*
+   * Wie breit eine Beschriftung wirklich ist, hängt von der Systemschrift des
+   * Geräts ab — auf dem iPhone anders als im Testbrowser. Statt das zu raten,
+   * misst das Spiel nach dem Aufbau nach: Passt eine Zeile nicht, rückt sie
+   * eine Stufe enger zusammen, und erst wenn auch das nicht reicht, fallen die
+   * Beschriftungen weg.
+   */
+  function rowOverflows(el) {
+    var gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+    var kids = el.children, need = -gap;
+    for (var i = 0; i < kids.length; i++) need += kids[i].scrollWidth + gap;
+    return need > el.clientWidth + 0.5;
+  }
+  /* Die Knopfzeile ist ein Raster und bricht nicht um — sie liefe über. */
+  function controlsWrap() {
+    return rowOverflows(document.querySelector(".controls"));
+  }
+
+  function fitRows() {
+    var row = document.querySelector(".meta-row");
+    var ctr = document.querySelector(".controls");
+    var steps, i;
+
+    steps = ["", "is-tight", "is-bare"];
+    for (i = 0; i < steps.length; i++) {
+      row.className = "meta-row" + (i ? " " + steps.slice(1, i + 1).join(" ") : "");
+      lockMeterWidths();
+      if (!rowOverflows(row)) break;
+    }
+
+    steps = ["", "is-tight", "is-bare"];
+    for (i = 0; i < steps.length; i++) {
+      ctr.className = "controls" + (i ? " " + steps.slice(1, i + 1).join(" ") : "");
+      lockButtonWidths();
+      if (!controlsWrap()) break;
+    }
+  }
+
+  function setLang(next) {
+    lang = I18N[next] ? next : "en";
+    save(STORE_LANG, lang);
+    applyLang();
+  }
+
+  /* ---------- Start ---------- */
+  versionEl.textContent = "v" + VERSION;
+  buildCatalogue();
+  buildTiles();
+
+  function addPips(host, count, list, extraClass) {
+    if (extraClass) host.classList.add(extraClass);
+    for (var i = 0; i < count; i++) {
+      var pip = document.createElement("span");
+      pip.className = "pip on";
+      host.appendChild(pip);
+      list.push(pip);
+    }
+  }
+  addPips(livesEl, LIVES_MAX, lifePips);
+  addPips(progressEl, PERFECT_TO_ADVANCE, progressPips, "pips--progress");
+  addPips(hintsEl, HINTS_MAX, hintPips, "pips--hints");
+
+  var storedLang = load(STORE_LANG);
+  lang = storedLang && I18N[storedLang] ? storedLang : "en";
+  hardMode = load(STORE_MODE) === "hard";
+
+  /*
+   * Die Punkte laufen jetzt auf der 60er-Skala. In HARD haben sich nur die
+   * Zahlen geändert, nicht die Regeln — der alte Bestwert wird deshalb einmalig
+   * exakt umgerechnet (60/50 = 1,2). In EASY sind die Regeln neu, dort beginnt
+   * die Bestenliste bei null.
+   */
+  var legacyHard = parseInt(load(STORE_BEST_HARD_OLD), 10);
+  if (isFinite(legacyHard) && legacyHard > 0 && !load(STORE_BEST_HARD)) {
+    save(STORE_BEST_HARD, String(Math.round(legacyHard * POINTS_PER_LEVEL / 50)));
+  }
+  loadBest();
+
+  setRules(load(STORE_RULES) === "open");
+  newPuzzle();
+  applyLang();
+  lockAllWidths();
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(lockAllWidths);   // Webfont kann später eintreffen
+  }
+
+  // Falls die Schrift erst verzögert steht, ein zweites Mal nachmessen.
+  window.setTimeout(lockAllWidths, 400);
+
+  // Drehen des Geräts ändert die verfügbare Breite — dann neu nachmessen.
+  var fitTimer = 0;
+  window.addEventListener("resize", function () {
+    window.clearTimeout(fitTimer);
+    fitTimer = window.setTimeout(lockAllWidths, 150);
+  });
+
+  againEl.addEventListener("click", newGame);
+  bestEl.addEventListener("click", onBestClick);
+  newGameEl.addEventListener("click", newGame);
+
+  solveEl.addEventListener("click", onHint);
+
+  /* Der Regeltext liegt eingeklappt unter der Fussleiste. */
+  function setRules(open) {
+    hintEl.hidden = !open;
+    rulesEl.setAttribute("aria-expanded", open ? "true" : "false");
+    save(STORE_RULES, open ? "open" : "closed");
+  }
+  rulesEl.addEventListener("click", function () {
+    setRules(hintEl.hidden);
+    if (!hintEl.hidden) {
+      lockAllWidths();   // sichtbarer Text, Zeilen neu messen
+      // Der Text klappt oberhalb des Knopfes auf — also dorthin schauen.
+      if (hintEl.scrollIntoView) hintEl.scrollIntoView({ block: "nearest" });
+    }
+  });
+
+  function setMode(hard) {
+    if (gameStarted || locked || over) return;   // nur vor dem ersten Zug eines Spiels
+    hardMode = !!hard;
+    save(STORE_MODE, hardMode ? "hard" : "easy");
+    loadBest();   // jeder Modus hat seinen eigenen Bestwert
+    blip(hardMode ? 392 : 523, 0.07);
+    render();
+    lockAllWidths();   // der Hinweis-Knopf verschwindet in HARD, die Zeile misst neu
+  }
+  modeEasyEl.addEventListener("click", function () { setMode(false); });
+  modeHardEl.addEventListener("click", function () { setMode(true); });
+
+  soundEl.addEventListener("click", function () {
+    soundOn = !soundOn;
+    soundEl.setAttribute("aria-pressed", soundOn ? "true" : "false");
+    soundEl.textContent = soundOn ? t("soundOn") : t("soundOff");
+    if (soundOn) blip(600, 0.08);
+  });
+
+  langEl.addEventListener("click", function () {
+    var idx = LANGS.indexOf(lang);
+    setLang(LANGS[(idx + 1) % LANGS.length]);
+  });
+})();
+</script>
+
+<style>
+  /* Kerbe, Kamera-Insel und Home-Indikator freihalten */
+  body .app {
+    padding-top: calc(clamp(18px, 5vw, 40px) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(clamp(16px, 5vw, 20px) + env(safe-area-inset-left, 0px));
+    padding-right: calc(clamp(16px, 5vw, 20px) + env(safe-area-inset-right, 0px));
+  }
+  /* Als installierte App liegt der Inhalt unter der Statusleiste: mindestens
+     deren Höhe freihalten, auch auf Geräten ohne Kerbe. */
+  @media all and (display-mode: standalone) {
+    body .app { padding-top: calc(clamp(18px, 5vw, 40px) + max(env(safe-area-inset-top, 0px), 24px)); }
+  }
+  body.is-standalone .app {
+    padding-top: calc(clamp(18px, 5vw, 40px) + max(env(safe-area-inset-top, 0px), 24px));
+  }
+  /* Langes Tippen soll keine Textauswahl auslösen */
+  .tile, .pill, .btn, .stat__value, .wordmark { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+</style>
+
+<script>
+  /* Älteres iOS kennt display-mode noch nicht, meldet den Modus aber über navigator.standalone. */
+  if (window.navigator.standalone === true) document.body.classList.add("is-standalone");
+
+  /* Offline-Betrieb; schlägt bei lokalem Öffnen still fehl, das ist in Ordnung. */
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
