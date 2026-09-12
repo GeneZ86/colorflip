@@ -1,5 +1,5 @@
 /* Minimaler Service Worker: macht Color-Flip offline spielbar. */
-const CACHE = "colorflip-1.3.1";
+const CACHE = "colorflip-1.4.0";
 const CORE = ["./", "./manifest.webmanifest",
   "./icon-180.png", "./icon-192.png", "./icon-512.png",
   "./chakrapetch-500.woff2", "./chakrapetch-600.woff2", "./chakrapetch-700.woff2"];

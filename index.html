@@ -122,6 +122,13 @@
   .wordmark .dot { color: var(--muted); padding: 0 .12em; }
 
   .header-actions { display: flex; gap: 5px; }
+  /* Reicht die Breite nicht (siehe fitRows), rueckt die Kopfzeile zusammen,
+     statt umzubrechen — betrifft vor allem lange Woerter wie "Reiniciar". */
+  header.is-tight .wordmark { font-size: clamp(16px, 4.4vw, 20px); }
+  header.is-tight .pill { font-size: 9px; letter-spacing: .04em; padding: 5px 7px; }
+  header.is-tight .header-actions { gap: 4px; }
+  header.is-bare .wordmark { font-size: 15px; }
+  header.is-bare .pill { font-size: 8.5px; letter-spacing: 0; padding: 5px 6px; }
 
   .pill {
     background: transparent;
@@ -140,6 +147,56 @@
   .pill:hover { color: var(--text); border-color: rgba(255,255,255,.24); }
   .pill:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
   .pill[aria-pressed="true"] { color: var(--text); border-color: rgba(255,255,255,.22); }
+
+  /*
+   * Sprachwahl: die Pille bleibt, was sie war. Die Liste haengt absolut darunter
+   * und veraendert deshalb kein Layout, weder beim Oeffnen noch beim Schliessen.
+   */
+  .langpick { position: relative; }
+  /* Eigene Regel, statt sich auf den Seitenrahmen zu verlassen: display:grid
+     würde ein schlichtes [hidden] sonst überstimmen. */
+  .langpick__menu[hidden] { display: none; }
+  .langpick__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 20;
+    min-width: 148px;
+    padding: 5px;
+    background: #16161d;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 12px;
+    box-shadow: 0 14px 34px rgba(0,0,0,.55);
+    display: grid;
+    gap: 1px;
+  }
+  .langpick__opt {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    width: 100%;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    padding: 7px 9px;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .15s, background .15s;
+  }
+  .langpick__opt:hover { color: var(--text); background: rgba(255,255,255,.05); }
+  .langpick__opt:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+  .langpick__opt[aria-selected="true"] { color: var(--cyan); background: rgba(0,240,255,.08); }
+  .langpick__code {
+    font-size: 9.5px;
+    letter-spacing: .12em;
+    color: var(--muted);
+    min-width: 2.2em;
+  }
+  .langpick__opt[aria-selected="true"] .langpick__code { color: var(--cyan); }
 
   /* ---------- Stats ---------- */
   .stats {
@@ -654,7 +711,10 @@
   <header>
     <h1 class="wordmark"><span class="c">COLOR</span><span class="dot">·</span><span class="y">FLIP</span></h1>
     <div class="header-actions">
-      <button class="pill" id="lang" type="button">EN</button>
+      <div class="langpick">
+        <button class="pill" id="lang" type="button" aria-expanded="false" aria-haspopup="listbox">EN</button>
+        <div class="langpick__menu" id="langMenu" role="listbox" hidden></div>
+      </div>
       <button class="pill" id="sound" aria-pressed="true" type="button">Sound on</button>
       <button class="pill" id="again" type="button">Restart</button>
     </div>
@@ -843,9 +903,322 @@
       overMeta: "Level {level} · Bestwert {best}",
       newGame: "Neues Spiel",
       tileLabel: "Kachel Zeile {r}, Spalte {c}"
+    },
+    es: {
+      code: "ES",
+      soundOn: "Sonido",
+      soundOff: "Silencio",
+      restart: "Reinicio",
+      lblLevel: "Nivel",
+      lblPuzzle: "Puntos",
+      lblBonus: "Bonus",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "Jugadas",
+      lblLives: "Vidas",
+      lblProgress: "Próximo nivel",
+      lblProgressMax: "Nivel máximo",
+      lblHints: "Pistas",
+      rules: "Reglas",
+      hint: "<h3>Objetivo</h3><p>Llevar las 16 casillas al mismo color — todas cian o todas amarillas, cualquiera de los dos vale.</p><h3>Cómo funciona una jugada</h3><p>Al tocar una casilla, esta y sus <b>vecinas directas</b> cambian de color: arriba, abajo, izquierda y derecha — nunca en diagonal. El orden de las jugadas no importa, y tocar dos veces la misma casilla se anula.</p><h3>El óptimo</h3><p>Todos los rompecabezas tienen solución. <b>Óptimo</b> indica cuántas jugadas hacen falta desde la posición actual — esa cifra se llama par y se recalcula tras cada jugada.</p><h3>Puntos</h3><ul><li>Un rompecabezas vale <b>60 puntos por nivel</b>: 60 en el nivel 1 y hasta 300 en el nivel 5.</li><li>Resuelto en par: el valor completo más un <b>bonus de 60</b>.</li><li>Cada toque por encima del par cuesta un quinto del valor. Cinco por encima terminan el rompecabezas y cuestan una vida.</li><li>Una <b>pista</b> marca una casilla óptima. Cuesta el bonus más una parte del valor — nunca una vida. Cinco pistas por partida.</li></ul><h3>Avanzar</h3><p>Cinco soluciones perfectas — en par y sin pista — llevan al siguiente nivel. Hay cinco niveles; no van más rápido, se vuelven más retorcidos. Tres vidas; al llegar a cero, la partida termina.</p><h3><span class='easy'>Easy</span> y <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>: el óptimo está a la vista, hay pistas, y solo cinco toques por encima del par cuestan una vida.</li><li><span class='hard'>Hard</span>: el óptimo queda oculto, no hay pistas, y cada rompecabezas terminado por encima del par cuesta una vida — como mucho una por rompecabezas, y nunca se cancela nada.</li><li>Cada modo lleva su propio récord. La elección vale para toda la partida y solo se puede hacer antes de la primera jugada.</li></ul>",
+      lblOptimal: "Óptimo",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "Dificultad — solo se puede elegir antes de la primera jugada de una partida",
+      hintBtn: "Pista",
+      hintTitle: "Marca una casilla de una solución óptima — cuesta el bonus y una parte del valor",
+      resetBest: "¿Borrar?",
+      resetBestTitle: "Toca para borrar el récord",
+      hintOne: "pista",
+      hintMany: "pistas",
+      titleClear: "RESUELTO",
+      titlePerfect: "PERFECTO",
+      titleLevelUp: "NUEVO NIVEL",
+      titleLost: "VIDA PERDIDA",
+      titleOver: "FIN DEL JUEGO",
+      cardZero: "0 puntos",
+      cardMeta: "{m} {moves} · óptimo {o}",
+      moveOne: "jugada",
+      moveMany: "jugadas",
+      cardBonus: "{base} + {bonus} bonus perfecto",
+      cardHintNote: " · {n} {hints}",
+      cardAbortNote: " · sin puntos, rompecabezas cancelado",
+      overScore: "{score} puntos",
+      overMeta: "Nivel {level} · Mejor {best}",
+      newGame: "Nueva partida",
+      tileLabel: "Casilla fila {r}, columna {c}"
+    },
+    fr: {
+      code: "FR",
+      soundOn: "Son",
+      soundOff: "Muet",
+      restart: "Rejouer",
+      lblLevel: "Niveau",
+      lblPuzzle: "Points",
+      lblBonus: "Bonus",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "Coups",
+      lblLives: "Vies",
+      lblProgress: "Niveau suivant",
+      lblProgressMax: "Niveau max",
+      lblHints: "Indices",
+      rules: "Règles",
+      hint: "<h3>But</h3><p>Amener les 16 cases à la même couleur — tout cyan ou tout jaune, les deux comptent.</p><h3>Ce que fait un coup</h3><p>Toucher une case la retourne, ainsi que ses <b>voisines directes</b> : au-dessus, en dessous, à gauche, à droite — jamais en diagonale. L'ordre des coups n'a aucune importance, et toucher deux fois la même case s'annule.</p><h3>L'optimum</h3><p>Toutes les énigmes ont une solution. <b>Optimal</b> indique le nombre de coups nécessaires depuis la position affichée — ce nombre s'appelle le par, et il est recalculé après chaque coup.</p><h3>Points</h3><ul><li>Une énigme vaut <b>60 points par niveau</b> : 60 au niveau 1, jusqu'à 300 au niveau 5.</li><li>Résolue en par : la valeur entière plus un <b>bonus de 60</b>.</li><li>Chaque coup au-dessus du par coûte un cinquième de la valeur. Cinq au-dessus mettent fin à l'énigme et coûtent une vie.</li><li>Un <b>indice</b> marque une case optimale. Il coûte le bonus et une part de la valeur — jamais une vie. Cinq indices par partie.</li></ul><h3>Progresser</h3><p>Cinq résolutions parfaites — en par et sans indice — mènent au niveau suivant. Il y a cinq niveaux ; ils ne deviennent pas plus rapides, mais plus retors. Trois vies ; à zéro, la partie est finie.</p><h3><span class='easy'>Easy</span> et <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span> : l'optimum est affiché, les indices sont disponibles, et seuls cinq coups au-dessus du par coûtent une vie.</li><li><span class='hard'>Hard</span> : l'optimum reste caché, il n'y a pas d'indice, et chaque énigme terminée au-dessus du par coûte une vie — au plus une par énigme, et rien n'est jamais interrompu.</li><li>Chaque mode tient son propre record. Le choix vaut pour toute la partie et ne peut se faire qu'avant le premier coup.</li></ul>",
+      lblOptimal: "Optimal",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "Difficulté — modifiable uniquement avant le premier coup d'une partie",
+      hintBtn: "Indice",
+      hintTitle: "Marque une case d'une solution optimale — coûte le bonus et une part de la valeur",
+      resetBest: "Effacer ?",
+      resetBestTitle: "Toucher pour effacer le record",
+      hintOne: "indice",
+      hintMany: "indices",
+      titleClear: "RÉSOLU",
+      titlePerfect: "PARFAIT",
+      titleLevelUp: "NIVEAU SUIVANT",
+      titleLost: "VIE PERDUE",
+      titleOver: "PARTIE TERMINÉE",
+      cardZero: "0 point",
+      cardMeta: "{m} {moves} · optimum {o}",
+      moveOne: "coup",
+      moveMany: "coups",
+      cardBonus: "{base} + {bonus} bonus parfait",
+      cardHintNote: " · {n} {hints}",
+      cardAbortNote: " · plus de points, énigme interrompue",
+      overScore: "{score} points",
+      overMeta: "Niveau {level} · Record {best}",
+      newGame: "Nouvelle partie",
+      tileLabel: "Case ligne {r}, colonne {c}"
+    },
+    pt: {
+      code: "PT",
+      soundOn: "Som",
+      soundOff: "Mudo",
+      restart: "Reiniciar",
+      lblLevel: "Nível",
+      lblPuzzle: "Pontos",
+      lblBonus: "Bónus",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "Jogadas",
+      lblLives: "Vidas",
+      lblProgress: "Próximo nível",
+      lblProgressMax: "Nível máximo",
+      lblHints: "Dicas",
+      rules: "Regras",
+      hint: "<h3>Objetivo</h3><p>Levar as 16 casas à mesma cor — todas ciano ou todas amarelas, qualquer uma conta.</p><h3>O que faz uma jogada</h3><p>Tocar numa casa vira-a, juntamente com as suas <b>vizinhas diretas</b>: acima, abaixo, à esquerda e à direita — nunca na diagonal. A ordem das jogadas não importa, e tocar duas vezes na mesma casa anula-se.</p><h3>O ótimo</h3><p>Todos os puzzles têm solução. <b>Ótimo</b> mostra quantas jogadas faltam a partir da posição atual — esse número chama-se par e é recalculado após cada jogada.</p><h3>Pontos</h3><ul><li>Um puzzle vale <b>60 pontos por nível</b>: 60 no nível 1, até 300 no nível 5.</li><li>Resolvido em par: o valor completo mais um <b>bónus de 60</b>.</li><li>Cada toque acima do par custa um quinto do valor. Cinco acima terminam o puzzle e custam uma vida.</li><li>Uma <b>dica</b> marca uma casa ótima. Custa o bónus e uma parte do valor — nunca uma vida. Cinco dicas por jogo.</li></ul><h3>Avançar</h3><p>Cinco soluções perfeitas — em par e sem dica — levam ao nível seguinte. São cinco níveis; não ficam mais rápidos, ficam mais manhosos. Três vidas; a zero, o jogo termina.</p><h3><span class='easy'>Easy</span> e <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>: o ótimo está à vista, há dicas, e só cinco toques acima do par custam uma vida.</li><li><span class='hard'>Hard</span>: o ótimo fica escondido, não há dicas, e cada puzzle terminado acima do par custa uma vida — no máximo uma por puzzle, e nada é cancelado.</li><li>Cada modo tem o seu próprio recorde. A escolha vale para todo o jogo e só pode ser feita antes da primeira jogada.</li></ul>",
+      lblOptimal: "Ótimo",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "Dificuldade — só pode ser escolhida antes da primeira jogada de um jogo",
+      hintBtn: "Dica",
+      hintTitle: "Marca uma casa de uma solução ótima — custa o bónus e uma parte do valor",
+      resetBest: "Apagar?",
+      resetBestTitle: "Toque para apagar o recorde",
+      hintOne: "dica",
+      hintMany: "dicas",
+      titleClear: "RESOLVIDO",
+      titlePerfect: "PERFEITO",
+      titleLevelUp: "NOVO NÍVEL",
+      titleLost: "VIDA PERDIDA",
+      titleOver: "FIM DE JOGO",
+      cardZero: "0 pontos",
+      cardMeta: "{m} {moves} · ótimo {o}",
+      moveOne: "jogada",
+      moveMany: "jogadas",
+      cardBonus: "{base} + {bonus} bónus perfeito",
+      cardHintNote: " · {n} {hints}",
+      cardAbortNote: " · sem pontos, puzzle cancelado",
+      overScore: "{score} pontos",
+      overMeta: "Nível {level} · Melhor {best}",
+      newGame: "Novo jogo",
+      tileLabel: "Casa linha {r}, coluna {c}"
+    },
+    it: {
+      code: "IT",
+      soundOn: "Audio",
+      soundOff: "Muto",
+      restart: "Riavvia",
+      lblLevel: "Livello",
+      lblPuzzle: "Punti",
+      lblBonus: "Bonus",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "Mosse",
+      lblLives: "Vite",
+      lblProgress: "Prossimo livello",
+      lblProgressMax: "Livello max",
+      lblHints: "Aiuti",
+      rules: "Regole",
+      hint: "<h3>Scopo</h3><p>Portare tutte e 16 le celle allo stesso colore — tutte ciano o tutte gialle, vale l'uno o l'altro.</p><h3>Cosa fa una mossa</h3><p>Toccando una cella si gira lei e le sue <b>vicine dirette</b>: sopra, sotto, a sinistra, a destra — mai in diagonale. L'ordine delle mosse non conta, e toccare due volte la stessa cella si annulla.</p><h3>L'ottimo</h3><p>Ogni rompicapo è risolvibile. <b>Ottimale</b> indica quante mosse servono dalla posizione attuale — quel numero si chiama par e viene ricalcolato dopo ogni mossa.</p><h3>Punti</h3><ul><li>Un rompicapo vale <b>60 punti per livello</b>: 60 al livello 1, fino a 300 al livello 5.</li><li>Risolto in par: il valore pieno più un <b>bonus di 60</b>.</li><li>Ogni tocco oltre il par costa un quinto del valore. Cinque oltre chiudono il rompicapo e costano una vita.</li><li>Un <b>aiuto</b> segna una cella ottimale. Costa il bonus e una parte del valore — mai una vita. Cinque aiuti a partita.</li></ul><h3>Avanzare</h3><p>Cinque soluzioni perfette — in par e senza aiuto — portano al livello successivo. I livelli sono cinque; non diventano più veloci, ma più insidiosi. Tre vite; a zero la partita finisce.</p><h3><span class='easy'>Easy</span> e <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>: l'ottimo è in vista, gli aiuti ci sono, e solo cinque tocchi oltre il par costano una vita.</li><li><span class='hard'>Hard</span>: l'ottimo resta nascosto, non ci sono aiuti, e ogni rompicapo chiuso oltre il par costa una vita — al massimo una per rompicapo, e non si interrompe mai nulla.</li><li>Ogni modalità tiene il proprio record. La scelta vale per l'intera partita e si può fare solo prima della prima mossa.</li></ul>",
+      lblOptimal: "Ottimale",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "Difficoltà — si può scegliere solo prima della prima mossa di una partita",
+      hintBtn: "Aiuto",
+      hintTitle: "Segna una cella di una soluzione ottimale — costa il bonus e una parte del valore",
+      resetBest: "Azzerare?",
+      resetBestTitle: "Tocca per azzerare il record",
+      hintOne: "aiuto",
+      hintMany: "aiuti",
+      titleClear: "RISOLTO",
+      titlePerfect: "PERFETTO",
+      titleLevelUp: "NUOVO LIVELLO",
+      titleLost: "VITA PERSA",
+      titleOver: "FINE PARTITA",
+      cardZero: "0 punti",
+      cardMeta: "{m} {moves} · ottimale {o}",
+      moveOne: "mossa",
+      moveMany: "mosse",
+      cardBonus: "{base} + {bonus} bonus perfetto",
+      cardHintNote: " · {n} {hints}",
+      cardAbortNote: " · niente punti, rompicapo interrotto",
+      overScore: "{score} punti",
+      overMeta: "Livello {level} · Record {best}",
+      newGame: "Nuova partita",
+      tileLabel: "Cella riga {r}, colonna {c}"
+    },
+    zh: {
+      code: "ZH",
+      soundOn: "声音",
+      soundOff: "静音",
+      restart: "重新开始",
+      lblLevel: "关卡",
+      lblPuzzle: "得分",
+      lblBonus: "奖励",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "步数",
+      lblLives: "生命",
+      lblProgress: "下一关",
+      lblProgressMax: "最高关",
+      lblHints: "提示",
+      rules: "规则",
+      hint: "<h3>目标</h3><p>把全部 16 格变成同一种颜色 — 全青或全黄都算过关。</p><h3>一步棋的作用</h3><p>点一格，这一格和它的<b>直接相邻格</b>同时翻面：上、下、左、右 — 不含斜角。落子顺序无关紧要，同一格点两次等于没点。</p><h3>最优步数</h3><p>每一题都有解。<b>最优</b>显示从当前局面出发最少还需要几步 — 这个数叫做标准步数，每走一步都会重新计算。</p><h3>计分</h3><ul><li>每题价值 <b>每关 60 分</b>：第 1 关 60 分，第 5 关最高 300 分。</li><li>按最优步数解开：满分再加 <b>60 分奖励</b>。</li><li>每多点一次扣掉五分之一。多五步则本题结束，并失去一条生命。</li><li><b>提示</b>标出一个最优格。代价是奖励分和一部分分值 — 但绝不扣生命。每局五次提示。</li></ul><h3>晋级</h3><p>连续五次完美通关 — 按最优步数、且未用提示 — 即可进入下一关。共五关；不是越来越快，而是越来越刁钻。三条生命，归零即结束。</p><h3><span class='easy'>Easy</span> 与 <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>：显示最优步数，可用提示，只有超出标准五步才扣生命。</li><li><span class='hard'>Hard</span>：隐藏最优步数，没有提示，凡是超出标准步数完成的题都扣一条生命 — 每题最多扣一条，且从不中断。</li><li>两种模式各自记录最高分。难度对整局有效，只能在第一步之前选择。</li></ul>",
+      lblOptimal: "最优",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "难度 — 只能在每局第一步之前选择",
+      hintBtn: "提示",
+      hintTitle: "标出最优解的一格 — 代价是奖励分和一部分分值",
+      resetBest: "清除？",
+      resetBestTitle: "点按清除最高分",
+      hintOne: "次提示",
+      hintMany: "次提示",
+      titleClear: "已解开",
+      titlePerfect: "完美",
+      titleLevelUp: "升级",
+      titleLost: "失去生命",
+      titleOver: "游戏结束",
+      cardZero: "0 分",
+      cardMeta: "{m} {moves} · 最优 {o}",
+      moveOne: "步",
+      moveMany: "步",
+      cardBonus: "{base} + {bonus} 完美奖励",
+      cardHintNote: " · {n} {hints}",
+      cardAbortNote: " · 分数归零，本题结束",
+      overScore: "{score} 分",
+      overMeta: "第 {level} 关 · 最佳 {best}",
+      newGame: "新游戏",
+      tileLabel: "第 {r} 行第 {c} 列"
+    },
+    ja: {
+      code: "JA",
+      soundOn: "音",
+      soundOff: "消音",
+      restart: "やり直す",
+      lblLevel: "レベル",
+      lblPuzzle: "得点",
+      lblBonus: "ボーナス",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "手数",
+      lblLives: "ライフ",
+      lblProgress: "次のレベル",
+      lblProgressMax: "最高レベル",
+      lblHints: "ヒント",
+      rules: "ルール",
+      hint: "<h3>目的</h3><p>16 マスすべてを同じ色にすること — シアン一色でも黄色一色でも構いません。</p><h3>一手の効果</h3><p>マスをタップすると、そのマスと<b>上下左右の隣のマス</b>が裏返ります — 斜めは含みません。手順の順番は結果に影響せず、同じマスを二度タップすると元に戻ります。</p><h3>最適手数</h3><p>すべての問題に解があります。<b>最適</b>は現在の盤面から必要な最少手数を示します — この数をパーと呼び、一手ごとに計算し直されます。</p><h3>得点</h3><ul><li>問題の価値は <b>レベルごとに 60 点</b>：レベル 1 で 60 点、レベル 5 で最大 300 点。</li><li>パーで解けば満点に <b>60 点のボーナス</b>。</li><li>パーを超えた一手ごとに五分の一を失います。五手超えると問題は終了し、ライフをひとつ失います。</li><li><b>ヒント</b>は最適なマスをひとつ示します。ボーナスと得点の一部を失いますが、ライフは減りません。1 ゲームにつき 5 回。</li></ul><h3>先へ進む</h3><p>パーかつヒントなしの完全な解答を 5 回で次のレベルへ。レベルは 5 つ。速くなるのではなく、厄介になります。ライフは 3 つ、ゼロでゲーム終了です。</p><h3><span class='easy'>Easy</span> と <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>：最適手数が表示され、ヒントが使え、パーを 5 手超えたときだけライフが減ります。</li><li><span class='hard'>Hard</span>：最適手数は隠され、ヒントはなく、パーを超えて終えた問題ごとにライフがひとつ減ります — 1 問につき最大 1 つ、中断はありません。</li><li>モードごとに別の最高得点を持ちます。選択は 1 ゲームを通して有効で、最初の一手より前にだけ行えます。</li></ul>",
+      lblOptimal: "最適",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "難易度 — 各ゲームの最初の一手より前だけ変更できます",
+      hintBtn: "ヒント",
+      hintTitle: "最適解のマスをひとつ示します — ボーナスと得点の一部を失います",
+      resetBest: "消去？",
+      resetBestTitle: "タップで最高得点を消去",
+      hintOne: "回",
+      hintMany: "回",
+      titleClear: "クリア",
+      titlePerfect: "パーフェクト",
+      titleLevelUp: "レベルアップ",
+      titleLost: "ライフ減少",
+      titleOver: "ゲームオーバー",
+      cardZero: "0 点",
+      cardMeta: "{m} {moves} · 最適 {o}",
+      moveOne: "手",
+      moveMany: "手",
+      cardBonus: "{base} + {bonus} パーフェクトボーナス",
+      cardHintNote: " · ヒント {n} {hints}",
+      cardAbortNote: " · 得点なし、中断",
+      overScore: "{score} 点",
+      overMeta: "レベル {level} · 最高 {best}",
+      newGame: "新しいゲーム",
+      tileLabel: "{r} 行 {c} 列のマス"
+    },
+    ko: {
+      code: "KO",
+      soundOn: "소리",
+      soundOff: "음소거",
+      restart: "다시 시작",
+      lblLevel: "레벨",
+      lblPuzzle: "점수",
+      lblBonus: "보너스",
+      lblScore: "Score",
+      lblBest: "High Score",
+      lblMoves: "이동",
+      lblLives: "목숨",
+      lblProgress: "다음 레벨",
+      lblProgressMax: "최고 레벨",
+      lblHints: "힌트",
+      rules: "규칙",
+      hint: "<h3>목표</h3><p>16개의 칸을 모두 같은 색으로 만드는 것 — 전부 청록이든 전부 노랑이든 상관없습니다.</p><h3>한 수의 효과</h3><p>칸을 누르면 그 칸과 <b>바로 붙은 칸</b>이 함께 뒤집힙니다: 위, 아래, 왼쪽, 오른쪽 — 대각선은 아닙니다. 순서는 결과에 영향을 주지 않으며, 같은 칸을 두 번 누르면 원래대로 돌아갑니다.</p><h3>최소 수</h3><p>모든 문제에는 답이 있습니다. <b>최소</b>는 현재 판에서 필요한 최소 이동 수를 보여줍니다 — 이 수를 파라고 하며 한 수마다 다시 계산됩니다.</p><h3>점수</h3><ul><li>한 문제의 값은 <b>레벨당 60점</b>: 레벨 1은 60점, 레벨 5는 최대 300점.</li><li>파로 풀면 전액에 <b>60점 보너스</b>.</li><li>파를 넘는 수마다 값의 5분의 1을 잃습니다. 다섯을 넘으면 문제가 끝나고 목숨 하나를 잃습니다.</li><li><b>힌트</b>는 최적의 칸 하나를 표시합니다. 보너스와 값의 일부를 잃지만 목숨은 잃지 않습니다. 게임당 다섯 번.</li></ul><h3>다음으로</h3><p>파로, 힌트 없이 완벽하게 다섯 번 풀면 다음 레벨입니다. 레벨은 다섯 개이며, 빨라지는 것이 아니라 까다로워집니다. 목숨은 셋, 0이 되면 게임이 끝납니다.</p><h3><span class='easy'>Easy</span>와 <span class='hard'>Hard</span></h3><ul><li><span class='easy'>Easy</span>: 최소 수가 보이고 힌트를 쓸 수 있으며, 파를 다섯 넘겼을 때만 목숨을 잃습니다.</li><li><span class='hard'>Hard</span>: 최소 수는 숨겨지고 힌트도 없으며, 파를 넘겨 끝낸 문제마다 목숨 하나를 잃습니다 — 문제당 최대 하나이고, 중단되는 일은 없습니다.</li><li>두 모드는 각각의 최고 점수를 가집니다. 선택은 한 게임 내내 유효하며 첫 수 이전에만 할 수 있습니다.</li></ul>",
+      lblOptimal: "최소",
+      modeEasy: "Easy",
+      modeHard: "Hard",
+      modeTitle: "난이도 — 한 게임의 첫 수를 두기 전에만 바꿀 수 있습니다",
+      hintBtn: "힌트",
+      hintTitle: "최적 해법의 칸 하나를 표시합니다 — 보너스와 점수 일부를 잃습니다",
+      resetBest: "지울까요?",
+      resetBestTitle: "탭하여 최고 점수 지우기",
+      hintOne: "회",
+      hintMany: "회",
+      titleClear: "해결",
+      titlePerfect: "완벽",
+      titleLevelUp: "레벨 업",
+      titleLost: "목숨 잃음",
+      titleOver: "게임 오버",
+      cardZero: "0점",
+      cardMeta: "{m} {moves} · 최소 {o}",
+      moveOne: "수",
+      moveMany: "수",
+      cardBonus: "{base} + {bonus} 완벽 보너스",
+      cardHintNote: " · 힌트 {n}{hints}",
+      cardAbortNote: " · 점수 없음, 중단됨",
+      overScore: "{score}점",
+      overMeta: "레벨 {level} · 최고 {best}",
+      newGame: "새 게임",
+      tileLabel: "{r}행 {c}열 칸"
     }
   };
-  var LANGS = ["en", "de"];
+  var LANGS = ["en", "de", "es", "fr", "pt", "it", "zh", "ja", "ko"];
+  // Im Menue steht neben dem Kuerzel der Name in der jeweiligen Sprache selbst.
+  var LANG_NAMES = {
+    en: "English", de: "Deutsch", es: "Español", fr: "Français", pt: "Português",
+    it: "Italiano", zh: "中文", ja: "日本語", ko: "한국어"
+  };
   var lang = "en";
 
   function t(key, vars) {
@@ -864,7 +1237,7 @@
   /* ---------- Rules ---------- */
   var SIZE = 4, N = SIZE * SIZE, ALL = 0xFFFF;
   var LIVES_MAX = 3;
-  var VERSION = "1.3.1";        // bei jeder veroeffentlichten Aenderung hochzaehlen
+  var VERSION = "1.4.0";        // bei jeder veroeffentlichten Aenderung hochzaehlen
   var HINTS_MAX = 5;            // Hinweise pro Spiel, nicht pro Raetsel
   var PERFECT_TO_ADVANCE = 5;   // perfect solves needed for the next level
   var PENALTY_STEPS = 5;        // clicks over the optimum until a puzzle is worthless
@@ -893,6 +1266,7 @@
   var versionEl = document.getElementById("version");
   var soundEl   = document.getElementById("sound");
   var langEl    = document.getElementById("lang");
+  var langMenuEl= document.getElementById("langMenu");
   var againEl   = document.getElementById("again");
   var glowEl    = document.getElementById("glow");
   var hintEl    = document.getElementById("hintText");
@@ -1586,21 +1960,21 @@
   }
 
   /*
-   * Beschriftungen sind in jeder Sprache verschieden breit — dadurch bräche
-   * eine Knopfzeile mal um und mal nicht. Deshalb wird jedes betroffene
-   * Element einmal auf die breiteste Fassung aller Sprachen festgelegt.
+   * Beschriftungen wechseln auch innerhalb einer Sprache (Ton/Stumm,
+   * Nächstes/Höchstes Level) — dadurch bräche eine Zeile mal um und mal nicht.
+   * Jedes betroffene Element wird deshalb auf die breiteste Fassung der
+   * aktiven Sprache festgelegt. Bei neun Sprachen auf die global breiteste zu
+   * sperren, würde allen die Maße der ausladendsten aufzwingen.
    */
   function lockWidth(el, keys) {
     if (!el) return;
-    var prev = el.textContent, max = 0, i, k;
+    var prev = el.textContent, max = 0, k;
     el.style.minWidth = "";
-    for (i = 0; i < LANGS.length; i++) {
-      for (k = 0; k < keys.length; k++) {
-        var dict = I18N[LANGS[i]] || I18N.en;
-        if (dict[keys[k]] === undefined) continue;
-        el.textContent = dict[keys[k]];
-        if (el.offsetWidth > max) max = el.offsetWidth;
-      }
+    var dict = I18N[lang] || I18N.en;
+    for (k = 0; k < keys.length; k++) {
+      if (dict[keys[k]] === undefined) continue;
+      el.textContent = dict[keys[k]];
+      if (el.offsetWidth > max) max = el.offsetWidth;
     }
     el.textContent = prev;
     el.style.minWidth = Math.ceil(max) + "px";
@@ -1612,6 +1986,11 @@
     lockWidth(labels.lblProgress, ["lblProgress", "lblProgressMax"]);
     lockWidth(labels.lblHints, ["lblHints"]);
   }
+  function lockHeaderWidths() {
+    lockWidth(langEl, ["code"]);
+    lockWidth(soundEl, ["soundOn", "soundOff"]);
+    lockWidth(againEl, ["restart"]);
+  }
   function lockButtonWidths() {
     lockWidth(solveEl, ["hintBtn"]);
     lockWidth(modeEasyEl, ["modeEasy", "modeHard"]);
@@ -1619,9 +1998,7 @@
   }
 
   function lockAllWidths() {
-    lockWidth(langEl, ["code"]);
-    lockWidth(soundEl, ["soundOn", "soundOff"]);
-    lockWidth(againEl, ["restart"]);
+    lockHeaderWidths();
     lockButtonWidths();
     lockMeterWidths();
     fitRows();
@@ -1648,7 +2025,15 @@
   function fitRows() {
     var row = document.querySelector(".meta-row");
     var ctr = document.querySelector(".controls");
+    var hdr = document.querySelector("header");
     var steps, i;
+
+    steps = ["", "is-tight", "is-bare"];
+    for (i = 0; i < steps.length; i++) {
+      hdr.className = i ? steps.slice(1, i + 1).join(" ") : "";
+      lockHeaderWidths();
+      if (!rowOverflows(hdr)) break;
+    }
 
     steps = ["", "is-tight", "is-bare"];
     for (i = 0; i < steps.length; i++) {
@@ -1669,6 +2054,7 @@
     lang = I18N[next] ? next : "en";
     save(STORE_LANG, lang);
     applyLang();
+    lockAllWidths();   // andere Sprache, andere Wortbreiten
   }
 
   /* ---------- Start ---------- */
@@ -1689,8 +2075,18 @@
   addPips(progressEl, PERFECT_TO_ADVANCE, progressPips, "pips--progress");
   addPips(hintsEl, HINTS_MAX, hintPips, "pips--hints");
 
+  /* Beim ersten Start die Sprache des Geräts übernehmen, sofern vorhanden. */
+  function deviceLang() {
+    var list = (navigator.languages && navigator.languages.length)
+      ? navigator.languages : [navigator.language || ""];
+    for (var i = 0; i < list.length; i++) {
+      var tag = String(list[i]).toLowerCase().split("-")[0];
+      if (I18N[tag]) return tag;
+    }
+    return "en";
+  }
   var storedLang = load(STORE_LANG);
-  lang = storedLang && I18N[storedLang] ? storedLang : "en";
+  lang = storedLang && I18N[storedLang] ? storedLang : deviceLang();
   hardMode = load(STORE_MODE) === "hard";
 
   /*
@@ -1763,9 +2159,43 @@
     if (soundOn) blip(600, 0.08);
   });
 
-  langEl.addEventListener("click", function () {
-    var idx = LANGS.indexOf(lang);
-    setLang(LANGS[(idx + 1) % LANGS.length]);
+  /* ---------- Sprachwahl ---------- */
+  function buildLangMenu() {
+    langMenuEl.innerHTML = "";
+    for (var i = 0; i < LANGS.length; i++) {
+      (function (code) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "langpick__opt";
+        b.setAttribute("role", "option");
+        b.setAttribute("aria-selected", code === lang ? "true" : "false");
+        var c = document.createElement("span");
+        c.className = "langpick__code";
+        c.textContent = (I18N[code] || {}).code || code.toUpperCase();
+        var n = document.createElement("span");
+        n.textContent = LANG_NAMES[code] || code;
+        b.appendChild(c); b.appendChild(n);
+        b.addEventListener("click", function () { openLangMenu(false); setLang(code); });
+        langMenuEl.appendChild(b);
+      })(LANGS[i]);
+    }
+  }
+
+  function openLangMenu(on) {
+    langMenuEl.hidden = !on;
+    langEl.setAttribute("aria-expanded", on ? "true" : "false");
+    if (on) buildLangMenu();
+  }
+
+  langEl.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+    openLangMenu(langMenuEl.hidden);
+  });
+  document.addEventListener("click", function (ev) {
+    if (!langMenuEl.hidden && !langMenuEl.contains(ev.target)) openLangMenu(false);
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape" && !langMenuEl.hidden) { openLangMenu(false); langEl.focus(); }
   });
 })();
 </script>
